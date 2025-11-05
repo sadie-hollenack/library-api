@@ -13,3 +13,49 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRoles {
+  admin
+  member
+}
+
+model User {
+  user_id Int @id @default(autoincrement())
+  username String @unique @db.VarChar(100)
+  password String @db.VarChar(255)
+  role UserRoles @default(member)
+  reviews Review[]
+  @@map("users")
+}
+
+model Author {
+  author_id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  biography String?
+  books Book[]
+  @@map("authors")
+}
+
+model Book {
+  book_id Int @id @default(autoincrement())
+  title String @db.VarChar(255)
+  published_year Int?
+  genre String? @db.VarChar(100)
+  author_id Int
+  author Author @relation(fields: [author_id], references: [author_id], onDelete: Cascade)
+  reviews Review[]
+  @@map("books")
+}
+
+model Review {
+  review_id Int @id @default(autoincrement())
+  title String @db.VarChar(100)
+  content String
+  rating Int
+  createdAt DateTime @default(now())
+  book_id Int
+  user_id Int
+  book Book @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  @@map("reviews")
+}

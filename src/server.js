@@ -4,6 +4,7 @@ import morgan from 'morgan';
 
 import authorRoutes from './routes/authorRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import bookRoutes from './routes/bookRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(morgan('tiny'));
 app.use(express.json());
 app.use('/libapi/users', userRoutes);
 app.use('/libapi/authors', authorRoutes);
+app.use('/libapi/books', bookRoutes);
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');

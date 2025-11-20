@@ -4,7 +4,7 @@ import {
   create,
   update,
   remove,
-} from '../respositories/authorRepo.js';
+} from '../repositories/authorRepo.js';
 
 export async function getAllAuthors(filter) {
   return await getAll(filter);

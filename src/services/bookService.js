@@ -4,7 +4,7 @@ import {
   create,
   update,
   remove,
-} from '../respositories/bookRepo.js';
+} from '../repositories/bookRepo.js';
 
 export async function getAllBooks(filter) {
   return await getAll(filter);

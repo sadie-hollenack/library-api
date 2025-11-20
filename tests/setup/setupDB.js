@@ -6,25 +6,25 @@ beforeAll(async () => {
 
     await prisma.user.create({
             data: {
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password",
-                role: "USER"
+                role: "member"
             }
         });
 
     await prisma.user.create({
         data: {
-            email: "user2@test.net",
+            username: "user2@test.net",
             password: "password",                
-            role: "USER"
+            role: "member"
         }
     });
 
     await prisma.user.create({
         data: {
-            email: "admin1@test.net",
+            username: "admin1@test.net",
             password: "password",                
-            role: "ADMIN"
+            role: "member"
         }
     });
 })
@@ -43,7 +43,7 @@ afterEach(async () => {
     });
 
     await prisma.user.deleteMany({
-        where: { email: {contains: "@test.net"} }
+        where: { username: {contains: "@test.net"} }
     });
 })
 

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import {createUser, findUserByEmail} from '../respositories/userRepo.js';
+import {createUser, findUserByEmail} from '../repositories/userRepo.js';
 import {Prisma} from '../generated/prisma/index.js';
 import jwt from 'jsonwebtoken';
 

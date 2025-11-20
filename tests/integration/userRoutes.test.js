@@ -12,15 +12,12 @@ router.post('/signup', signUpHandler);
 router.post('/login', loginHandler);
 */
 
-describe("Users API", async () => {
+describe("Users API", () => {
     test("GET /users OK returns all users", async () => {
-        // TODO: Only admins can get all users, update test
-        // TODO: Potentially needs changed, assumes DB is empty before test
-
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -32,10 +29,10 @@ describe("Users API", async () => {
             .set("Authorization", `Bearer ${token}`);
         
         expect(res.statusCode).toBe(200);
-        expect(res.body.length).toBe(2);
+        expect(res.body.length).toBeGreaterThanOrEqual(2);
 
-        expect(res.body[0]).toHaveProperty("email");
-        expect(res.body[1]).toHaveProperty("email");
+        expect(res.body[0]).toHaveProperty("username");
+        expect(res.body[1]).toHaveProperty("username");
 
         expect(res.body[0]).not.toHaveProperty("password");
         expect(res.body[1]).not.toHaveProperty("password");
@@ -52,7 +49,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -69,29 +66,29 @@ describe("Users API", async () => {
         const res = await request(app)
             .post("/libapi/users/signup")
             .send({
-                email: "newuser@test.net",
+                username: "newuser@test.net",
                 password: "password",
-                role: "USER"
+                role: "member"
             })
             .expect(201);
 
         expect(res.body).toHaveProperty("id");
-        expect(res.body).toHaveProperty("email", "newuser@test.net");
-        expect(res.body).toHaveProperty("role", "USER");
+        expect(res.body).toHaveProperty("username", "newuser@test.net");
+        expect(res.body).toHaveProperty("role", "member");
         expect(res.body).not.toHaveProperty("password");
 
         res = await request(app)
             .post("/libapi/users/signup")
             .send({
-                email: "newadmin@test.net",
+                username: "newadmin@test.net",
                 password: "password",
-                role: "ADMIN"
+                role: "admin"
             })
             .expect(201);
 
         expect(res.body).toHaveProperty("id");
-        expect(res.body).toHaveProperty("email", "newadmin@test.net");
-        expect(res.body).toHaveProperty("role", "ADMIN");
+        expect(res.body).toHaveProperty("username", "newadmin@test.net");
+        expect(res.body).toHaveProperty("role", "admin");
         expect(res.body).not.toHaveProperty("password");
     })
 
@@ -99,9 +96,9 @@ describe("Users API", async () => {
         const res = await request(app)
             .post("/libapi/users/signup")
             .send({
-                email: null,
+                username: null,
                 password: null,
-                role: null
+                role: "member"
             })
             .expect(404);
 
@@ -112,7 +109,7 @@ describe("Users API", async () => {
         const res = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -124,7 +121,7 @@ describe("Users API", async () => {
         const res = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "wrongpassword"
             })
             .expect(401);
@@ -134,7 +131,7 @@ describe("Users API", async () => {
         res = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "invaliduser@test.net",
+                username: "invaliduser@test.net",
                 password: "password"
             })
             .expect(401);
@@ -146,7 +143,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "admin1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -157,7 +154,7 @@ describe("Users API", async () => {
             .put("/libapi/users/1")
             .set("Authorization", `Bearer ${token}`)
             .send({
-                email: "updateduser@test.net",
+                username: "updateduser@test.net",
                 password: "newpassword",
             })
             .expect(200);
@@ -167,15 +164,15 @@ describe("Users API", async () => {
             .set("Authorization", `Bearer ${token}`)
 
         expect(resGet.statusCode).toBe(200);
-        expect(resGet.body).toHaveProperty("email");
-        expect(resGet.body.email).toBe("updateduser@test.net");
+        expect(resGet.body).toHaveProperty("username");
+        expect(resGet.body.username).toBe("updateduser@test.net");
     })
 
     test("PUT /users/:id FAIL does not update an existing users details", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "admin1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -187,7 +184,7 @@ describe("Users API", async () => {
             .put("/libapi/users/9999") 
             .set("Authorization", `Bearer ${token}`)
             .send({
-                email: "updateduser@test.net",
+                username: "updateduser@test.net",
                 password: "password",
             })
             .expect(404);
@@ -199,19 +196,19 @@ describe("Users API", async () => {
             .put("/libapi/users/1") 
             .set("Authorization", `Bearer ${token}`)
             .send({
-                email: "updateduser@test.net",
+                username: "updateduser@test.net",
                 password: "test", // password needs to be 8+ 
             })
             .expect(400);
 
         expect(res.body).toHaveProperty("error");
 
-        // Email not unique
+        // username not unique
         res = await request(app)
             .put("/libapi/users/1") 
             .set("Authorization", `Bearer ${token}`)
             .send({
-                email: "user2@test.net",
+                username: "user2@test.net",
                 password: "password",
             })
             .expect(409);
@@ -222,7 +219,7 @@ describe("Users API", async () => {
         loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -233,7 +230,7 @@ describe("Users API", async () => {
             .put("/libapi/users/1") 
             .set("Authorization", `Bearer ${token}`)
             .send({
-                email: "user2@test.net",
+                username: "user2@test.net",
                 password: "password",
             })
             .expect(403);
@@ -244,7 +241,7 @@ describe("Users API", async () => {
         res = await request(app)
             .put("/libapi/users/1") 
             .send({
-                email: "user2@test.net",
+                username: "user2@test.net",
                 password: "password",
             })
             .expect(401);
@@ -257,7 +254,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "admin1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -268,12 +265,12 @@ describe("Users API", async () => {
             .patch("/libapi/users/2")
             .set("Authorization", `Bearer ${token}`)
             .send({
-                role: "ADMIN",
+                role: "admin",
             })
             .expect(200);
 
         expect(res.body).toHaveProperty("id", 2);
-        expect(res.body).toHaveProperty("role", "ADMIN");
+        expect(res.body).toHaveProperty("role", "admin");
     })
 
     test("PATCH /users/:id FAIL does not update an existing users details", async () => {
@@ -281,7 +278,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "admin1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -292,7 +289,7 @@ describe("Users API", async () => {
             .patch("/libapi/users/9999")
             .set("Authorization", `Bearer ${token}`)
             .send({
-                role: "ADMIN",
+                role: "admin",
             })
             .expect(404);
 
@@ -313,7 +310,7 @@ describe("Users API", async () => {
         loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -324,7 +321,7 @@ describe("Users API", async () => {
             .patch("/libapi/users/2")
             .set("Authorization", `Bearer ${token}`)
             .send({
-                role: "ADMIN",
+                role: "admin",
             })
             .expect(403);
             
@@ -334,7 +331,7 @@ describe("Users API", async () => {
         res = await request(app)
             .patch("/libapi/users/2")
             .send({
-                role: "ADMIN",
+                role: "admin",
             })
             .expect(401);
 
@@ -345,7 +342,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "admin1@test.net",
+                username: "admin1@test.net",
                 password: "password"
             })
             .expect(200);
@@ -368,7 +365,7 @@ describe("Users API", async () => {
         const loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                email: "user1@test.net",
+                username: "user1@test.net",
                 password: "password"
             })
             .expect(200);

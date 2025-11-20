@@ -2,4 +2,7 @@ node_modules
 .env
 src/generated/prisma
 package-lock.json
-coverage
+coveragenode_modules
+.env
+src/generated/prisma
+.vscode

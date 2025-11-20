@@ -188,7 +188,7 @@ describe("Users API", async () => {
             .set("Authorization", `Bearer ${token}`)
             .send({
                 email: "updateduser@test.net",
-                password: "newpassword",
+                password: "password",
             })
             .expect(404);
 
@@ -212,7 +212,7 @@ describe("Users API", async () => {
             .set("Authorization", `Bearer ${token}`)
             .send({
                 email: "user2@test.net",
-                password: "newpassword",
+                password: "password",
             })
             .expect(409);
 
@@ -223,7 +223,7 @@ describe("Users API", async () => {
             .post("/libapi/users/login")
             .send({
                 email: "user1@test.net",
-                password: "newpassword"
+                password: "password"
             })
             .expect(200);
 
@@ -234,7 +234,7 @@ describe("Users API", async () => {
             .set("Authorization", `Bearer ${token}`)
             .send({
                 email: "user2@test.net",
-                password: "newpassword",
+                password: "password",
             })
             .expect(403);
 
@@ -245,7 +245,7 @@ describe("Users API", async () => {
             .put("/libapi/users/1") 
             .send({
                 email: "user2@test.net",
-                password: "newpassword",
+                password: "password",
             })
             .expect(401);
 
@@ -314,7 +314,7 @@ describe("Users API", async () => {
             .post("/libapi/users/login")
             .send({
                 email: "user1@test.net",
-                password: "newpassword"
+                password: "password"
             })
             .expect(200);
 
@@ -369,7 +369,7 @@ describe("Users API", async () => {
             .post("/libapi/users/login")
             .send({
                 email: "user1@test.net",
-                password: "newpassword"
+                password: "password"
             })
             .expect(200);
 

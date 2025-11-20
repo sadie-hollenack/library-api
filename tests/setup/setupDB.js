@@ -1,8 +1,32 @@
 import prisma from '../../config/db.js';
-import app from '../../src/server.js'
 
 beforeAll(async () => {
     await prisma.$connect();
+
+
+    await prisma.user.create({
+            data: {
+                email: "user1@test.net",
+                password: "password",
+                role: "USER"
+            }
+        });
+
+    await prisma.user.create({
+        data: {
+            email: "user2@test.net",
+            password: "password",                
+            role: "USER"
+        }
+    });
+
+    await prisma.user.create({
+        data: {
+            email: "admin1@test.net",
+            password: "password",                
+            role: "ADMIN"
+        }
+    });
 })
 
 afterEach(async () => {

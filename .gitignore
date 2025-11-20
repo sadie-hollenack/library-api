@@ -6,3 +6,4 @@ coveragenode_modules
 .env
 src/generated/prisma
 .vscode
+coverage

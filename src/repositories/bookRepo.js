@@ -1,5 +1,5 @@
 //uncomment when config/db.js is setup
-//import prisma from '../config/db.js';
+import prisma from '../config/db.js';
 
 export async function getAll(filter) {
   const conditions = {};
@@ -32,7 +32,7 @@ export async function getAll(filter) {
 
 export async function getById(id) {
   const book = await prisma.book.findUnique({
-    where: { id },
+    where: { book_id: id },
     select: {
       book_id: true,
       title: true,
@@ -54,7 +54,7 @@ export async function create(book) {
 export async function update(id, updates) {
   try {
     const updatedBook = await prisma.book.update({
-      where: { id },
+      where: { book_id: id },
       data: updates,
     });
     return updatedBook;
@@ -67,7 +67,7 @@ export async function update(id, updates) {
 export async function remove(id) {
   try {
     const deletedBook = await prisma.book.delete({
-      where: { id },
+      where: {  book_id: id },
     });
     return deletedBook;
   } catch (error) {

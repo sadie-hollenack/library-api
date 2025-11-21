@@ -33,3 +33,5 @@ app.use((err, req, res, next) => {
   }
   res.status(err.status).json({ error: err.message });
 });
+
+export default app;

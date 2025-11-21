@@ -8,7 +8,7 @@ beforeAll(async () => {
             data: {
                 email: "user1@test.net",
                 password: "password",
-                role: "USER"
+                role: "member"
             }
         });
 
@@ -16,7 +16,7 @@ beforeAll(async () => {
         data: {
             email: "user2@test.net",
             password: "password",                
-            role: "USER"
+            role: "member"
         }
     });
 
@@ -24,7 +24,7 @@ beforeAll(async () => {
         data: {
             email: "admin1@test.net",
             password: "password",                
-            role: "ADMIN"
+            role: "admin"
         }
     });
 })

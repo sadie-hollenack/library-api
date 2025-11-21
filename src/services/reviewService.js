@@ -4,7 +4,7 @@ import {
   create,
   update,
   remove,
-} from '../respositories/reviewRepo.js';
+} from '../repositories/reviewRepo.js';
 
 export async function getAllReviews(filter) {
   return await getAll(filter);

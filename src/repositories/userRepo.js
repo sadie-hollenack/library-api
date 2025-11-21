@@ -3,17 +3,17 @@ import bcrypt from 'bcrypt';
 
 /** DB support function for signup */
 export async function createUser(data){
-    return await prisma.user.create({data: data, omit: {password: true}});
+    return await prisma.user.create({data: data});
 }
 
 /** DB support function for login */
-export async function findUserByEmail(email){
-    return await prisma.user.findUnique({where: {email}});
+export async function findUserByEmail(username){
+    return await prisma.user.findUnique({where: {username}});
 }
 
 export async function findUser(id){
     console.log(id);
-    return await prisma.user.findUnique({where: {id}, omit: {password: true}});
+    return await prisma.user.findUnique({where: {user_id: Number(id)}, omit: {password: true}});
 }
 
 export async function findAllUsers(){
@@ -27,12 +27,14 @@ export async function update(id, data){
         data.password = hashedPassword;
     }
     const updatedMe = await prisma.user.update({
-      where: { id },
+      where: { user_id: Number(id) },
       data: data,
-      omit: {password: true}
+      omit: {password: true},
     });
+    console.log(updatedMe);
     return updatedMe;
   } catch (error) {
+    console.log("We hit an error")
     if (error.code === 'P2025') return null;
     if(error.code === 'P2002'){
          const error = new Error('Email has already been used');
@@ -47,7 +49,7 @@ export async function update(id, data){
 export async function remove(id){
     try {
     await prisma.user.delete({
-      where: { id },
+      where: { user_id: Number(id) },
     });
     return;
   } catch (error) {
@@ -60,7 +62,7 @@ export async function remove(id){
 export async function updateRole(id, role){
     try{
     const updatedUser = await prisma.user.update({
-      where: { id },
+      where: { user_id: Number(id) },
       data: {role},
       omit: {password: true}
     });

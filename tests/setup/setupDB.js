@@ -1,4 +1,7 @@
 import prisma from '../../config/db.js';
+import bcrypt from "bcrypt";
+
+const hashedPassword = await bcrypt.hash("password", 10);
 
 beforeAll(async () => {
     await prisma.$connect();
@@ -7,7 +10,7 @@ beforeAll(async () => {
     await prisma.user.create({
             data: {
                 username: "user1@test.net",
-                password: "password",
+                password: hashedPassword,
                 role: "member"
             }
         });
@@ -15,7 +18,7 @@ beforeAll(async () => {
     await prisma.user.create({
         data: {
             username: "user2@test.net",
-            password: "password",                
+            password: hashedPassword,                
             role: "member"
         }
     });
@@ -23,8 +26,8 @@ beforeAll(async () => {
     await prisma.user.create({
         data: {
             username: "admin1@test.net",
-            password: "password",                
-            role: "member"
+            password: hashedPassword,                
+            role: "admin"
         }
     });
 })
@@ -42,12 +45,15 @@ afterEach(async () => {
         where: { name: {contains: "[TEST]"} }
     });
 
-    await prisma.user.deleteMany({
-        where: { username: {contains: "@test.net"} }
-    });
+    
 })
 
 afterAll(async () => {
+    await prisma.user.deleteMany({
+        where: { username: {contains: "@test.net"} }
+    });
+
+    
     await prisma.$disconnect();
 })
 

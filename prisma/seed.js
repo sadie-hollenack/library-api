@@ -1,26 +1,31 @@
 import prisma from "../src/config/db.js";
 import { UserRoles } from "../src/generated/prisma/index.js";
 
+import bcrypt from "bcrypt";
+
+const hashedPassword = await bcrypt.hash("password", 10);
+
+
 async function main() {
   // User
   const user1 = await prisma.user.create({
     data: {
       username: "booklover32",
-      password: "password123",
+      password: hashedPassword,
     },
   });
 
   const user2 = await prisma.user.create({
     data: {
       username: "awesomesauce56",
-      password: "strongpassword321",
+      password: hashedPassword,
     },
   });
 
   const admin1 = await prisma.user.create({
     data: {
       username: "admin1",
-      password: "1nimda",
+      password: hashedPassword,
       role: UserRoles.admin,
     },
   });

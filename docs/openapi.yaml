@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: Library API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local dev servers
+  - url: https://library-api-88rw.onrender.com
+    description: Production server on render
+tags:
+  - name: User
+    description: User-related endpoints
+  - name: Author
+    description: Author-related endpoints
+  - name: Book
+    description: Book-related endpoints
+  - name: Review
+    description: Review-related endpoints
+paths:
+  /users:
+    $ref: paths/users.yaml
+  /users/signup:
+    $ref: paths/users_signup.yaml
+  /users/login:
+    $ref: paths/users_login.yaml
+  /users/{id}:
+    $ref: paths/users_{id}.yaml
+  /users/{id}/role:
+    $ref: paths/users_{id}_role.yaml
+  /authors:
+    $ref: paths/authors.yaml
+  /authors/{id}: 
+    $ref: paths/authors_{id}.yaml
+  /books:
+    $ref: paths/books.yaml
+  /books/{id}: 
+    $ref: paths/books_{id}.yaml
+  /reviews:
+    $ref: paths/reviews.yaml
+  /reviews/{id}: 
+    $ref: paths/reviews_{id}.yaml

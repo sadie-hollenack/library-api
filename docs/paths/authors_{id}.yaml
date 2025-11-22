@@ -1,0 +1,139 @@
+get:
+  summary: Get an author by their author_id
+  tags:
+    - Author
+  parameters:
+    - name: id
+      in: path
+      description: author_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              author_id:
+                type: integer
+                example: 3
+              name:
+                type: string
+                example: Mariah Carey
+              biography:
+                type: string
+                example: Shes defrosting...
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Author Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find an author with that id
+put:
+  summary: Update an authors name and biography via their author_id
+  tags:
+    - Author
+  parameters:
+    - name: id
+      in: path
+      description: author_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  requestBody:
+    description: Info to change, only one is required
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Sabrina Carpenter
+            biography:
+              type: string
+              example: Coffee lover
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              author_id:
+                type: integer
+                example: 3
+              name:
+                type: string
+                example: Sabrina Carpenter
+              biography:
+                type: string
+                example: Coffee lover
+    "400":
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Biography must be at least 10 characters
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Author Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find an author with that id
+delete:
+  summary: Delete an author
+  tags:
+    - Author
+  parameters:
+    - name: id
+      in: path
+      description: author_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "204":
+      description: OK
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Author not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find an author with that id

@@ -1,0 +1,59 @@
+post:
+  summary: User sign up
+  tags:
+    - User
+  requestBody:
+    description: Info to get signed up
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: TameImpala
+            password:
+              type: string
+              example: didyouknowtameimpalaisoneguy
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 3
+              username:
+                type: string
+                example: TameImpala
+              role:
+                type: string
+                example: member
+    '400':
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Username must be alphanumeric
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    '409':
+      description: Username not unique
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Username must unique

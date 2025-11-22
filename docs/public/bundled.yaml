@@ -1,0 +1,1267 @@
+openapi: 3.1.0
+info:
+  title: Library API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local dev servers
+  - url: https://library-api-88rw.onrender.com
+    description: Production server on render
+tags:
+  - name: User
+    description: User-related endpoints
+  - name: Author
+    description: Author-related endpoints
+  - name: Book
+    description: Book-related endpoints
+  - name: Review
+    description: Review-related endpoints
+paths:
+  /users:
+    get:
+      summary: List all users
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_id:
+                      readOnly: true
+                      type: integer
+                    username:
+                      type: string
+                    role:
+                      type: string
+                      enum:
+                        - admin
+                        - member
+                example:
+                  - user_id: 1
+                    username: Lady Gaga
+                    role: admin
+                  - user_id: 2
+                    username: Ozzy Osbourne
+                    role: member
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+  /users/signup:
+    post:
+      summary: User sign up
+      tags:
+        - User
+      requestBody:
+        description: Info to get signed up
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: TameImpala
+                password:
+                  type: string
+                  example: didyouknowtameimpalaisoneguy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 3
+                  username:
+                    type: string
+                    example: TameImpala
+                  role:
+                    type: string
+                    example: member
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Username must be alphanumeric
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '409':
+          description: Username not unique
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Username must unique
+  /users/login:
+    post:
+      summary: User login
+      tags:
+        - User
+      requestBody:
+        description: Info to login
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: TameImpala
+                password:
+                  type: string
+                  example: didyouknowtameimpalaisoneguy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+        '401':
+          description: Validation failed, login failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Invalid Credentials
+  /users/{id}:
+    get:
+      summary: Get a user by their user_id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          description: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 3
+                  username:
+                    type: string
+                    example: BonJovi
+                  role:
+                    type: string
+                    example: member
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: User Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a user with that id
+    put:
+      summary: Update a users name and password via their user_id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          description: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      requestBody:
+        description: Info to change, only one is required
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: BonJovi
+                password:
+                  type: string
+                  example: BrandNewPassword
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 3
+                  username:
+                    type: string
+                    example: BonJovi
+                  role:
+                    type: string
+                    example: member
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Password mut be between 8 and 64 characters
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: User Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a user with that id
+        '409':
+          description: Username not unique
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Username must unique
+    delete:
+      summary: Delete a user
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          description: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: User not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a user with that id
+  /users/{id}/role:
+    patch:
+      summary: Update a users role
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          description: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      requestBody:
+        description: Role to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - member
+                    - admin
+                  example: admin
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 3
+                  username:
+                    type: string
+                    example: BonJovi
+                  role:
+                    type: string
+                    enum:
+                      - memeber
+                      - admin
+                    example: admin
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Role must be memeber or admin
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: User not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a user with that id
+  /authors:
+    get:
+      summary: List all authors
+      tags:
+        - Author
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Search for a certain author
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          description: Sort by author_id or name
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          required: false
+          description: Sort ascending (asc) or descending (dsc)
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: limit
+          in: query
+          required: false
+          description: Limit how many authors are returned
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: Offset the results
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    author_id:
+                      type: integer
+                    name:
+                      type: string
+                    biography:
+                      type: string
+                example:
+                  - author_id: 1
+                    name: Joanna Cole
+                    biography: Author of childrens books and teaches science
+                  - author_id: 2
+                    name: James Stewart
+                    biography: Professor of mathematics and a violinist
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+    post:
+      summary: Create an author
+      tags:
+        - Author
+      requestBody:
+        description: Author info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Mariah Carey
+                biography:
+                  type: string
+                  example: Shes defrosting...
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: integer
+                    example: 3
+                  name:
+                    type: string
+                    example: Mariah Carey
+                  biography:
+                    type: string
+                    example: Shes defrosting...
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Name is required
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+  /authors/{id}:
+    get:
+      summary: Get an author by their author_id
+      tags:
+        - Author
+      parameters:
+        - name: id
+          in: path
+          description: author_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: integer
+                    example: 3
+                  name:
+                    type: string
+                    example: Mariah Carey
+                  biography:
+                    type: string
+                    example: Shes defrosting...
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Author Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find an author with that id
+    put:
+      summary: Update an authors name and biography via their author_id
+      tags:
+        - Author
+      parameters:
+        - name: id
+          in: path
+          description: author_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      requestBody:
+        description: Info to change, only one is required
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Sabrina Carpenter
+                biography:
+                  type: string
+                  example: Coffee lover
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: integer
+                    example: 3
+                  name:
+                    type: string
+                    example: Sabrina Carpenter
+                  biography:
+                    type: string
+                    example: Coffee lover
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Biography must be at least 10 characters
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Author Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find an author with that id
+    delete:
+      summary: Delete an author
+      tags:
+        - Author
+      parameters:
+        - name: id
+          in: path
+          description: author_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Author not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find an author with that id
+  /books:
+    get:
+      summary: List all books
+      tags:
+        - Book
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Search for a certain book
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          description: Sort by book_id or title
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          required: false
+          description: Sort ascending (asc) or descending (dsc)
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: limit
+          in: query
+          required: false
+          description: Limit how many authors are returned
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: Offset the results
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    book_id:
+                      type: integer
+                    title:
+                      type: string
+                    published_year:
+                      type: integer
+                    genre:
+                      type: string
+                    author_id:
+                      type: integer
+                example:
+                  - book_id: 1
+                    title: The Magic School Bus
+                    published_year: 2001
+                    genre: Educational
+                    author_id: 1
+                  - book_id: 2
+                    title: Calculus 8th Edition
+                    published_year: 2015
+                    genre: Math Textbook
+                    author_id: 2
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+    post:
+      summary: Create a book
+      tags:
+        - Book
+      requestBody:
+        description: Book info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: A Treatise on Chocolate Eclairs
+                published_year:
+                  type: integer
+                  example: 1828
+                genre:
+                  type: string
+                  example: Philosophy
+                author_id:
+                  type: integer
+                  example: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: A Treatise on Chocolate Eclairs
+                  published_year:
+                    type: integer
+                    example: 1828
+                  genre:
+                    type: string
+                    example: Philosophy
+                  author_id:
+                    type: integer
+                    example: 3
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: author_id must exist
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+  /books/{id}:
+    get:
+      summary: Get a book by it's book_id
+      tags:
+        - Book
+      parameters:
+        - name: id
+          in: path
+          description: book_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: A Treatise on Chocolate Eclairs
+                  published_year:
+                    type: integer
+                    example: 1828
+                  genre:
+                    type: string
+                    example: Philosophy
+                  author_id:
+                    type: integer
+                    example: 3
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Book Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a book with that id
+    put:
+      summary: Update a books title, published_year, genre, or author_id via it's book_id
+      tags:
+        - Book
+      parameters:
+        - name: id
+          in: path
+          description: book_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      requestBody:
+        description: Info to change, only one is required
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: The Starving game
+                published_year:
+                  type: integer
+                  example: 2018
+                genre:
+                  type: string
+                  example: Dystopian Fiction
+                author_id:
+                  type: integer
+                  example: 4
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: The Starving game
+                  published_year:
+                    type: integer
+                    example: 2018
+                  genre:
+                    type: string
+                    example: Dystopian Fiction
+                  author_id:
+                    type: integer
+                    example: 4
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Genre must be at least 3 characters
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Book Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a book with that id
+    delete:
+      summary: Delete a book
+      tags:
+        - Book
+      parameters:
+        - name: id
+          in: path
+          description: book_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Book not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a Book with that id
+  /reviews:
+    get:
+      summary: List all reviews
+      tags:
+        - Review
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Search for a certian review
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          description: Sort by review_id or title
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          required: false
+          description: Sort ascending (asc) or descending (dsc)
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: limit
+          in: query
+          required: false
+          description: Limit how many reviews are returned
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: Offset the results
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    review_id:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    rating:
+                      type: integer
+                      minimum: 1
+                      maximum: 5
+                    created_at:
+                      type: string
+                    book_id:
+                      type: integer
+                    user_id:
+                      type: integer
+                example:
+                  - review_id: 1
+                    title: I HATE The Magic School Bus!!
+                    content: I never got to go on field trips like that :(
+                    rating: 1
+                    created_at: '2022-11-05T08:15:30-05:00'
+                    book_id: 1
+                    user_id: 2
+                  - review_id: 2
+                    title: Wowza, what a read!
+                    content: I haven't read such an electric title since Intro to Circuits!
+                    rating: 5
+                    created_at: '2022-08-10T09:47:33-05:00'
+                    book_id: 2
+                    user_id: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+    post:
+      summary: Create a review
+      tags:
+        - Review
+      requestBody:
+        description: Review info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Boring!
+                content:
+                  type: string
+                  example: I had more fun counting each individual pixel on my Nintendo 3DS
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 2
+                book_id:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: Boring!
+                  content:
+                    type: string
+                    example: I had more fun counting each individual pixel on my Nintendo 3DS
+                  rating:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 2
+                  created_at:
+                    type: string
+                    example: 2022-07-09T15:23:54:0-5:00
+                  book_id:
+                    type: integer
+                    example: 2
+                  user_id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: book_id must exist
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+  /reviews/{id}:
+    get:
+      summary: Get a review by it's review_id
+      tags:
+        - Review
+      parameters:
+        - name: id
+          in: path
+          description: review_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: Boring!
+                  content:
+                    type: string
+                    example: I had more fun counting each individual pixel on my Nintendo 3DS
+                  rating:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 2
+                  created_at:
+                    type: string
+                    example: 2022-07-09T15:23:54:0-5:00
+                  book_id:
+                    type: integer
+                    example: 2
+                  user_id:
+                    type: integer
+                    example: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Review Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a review with that id
+    put:
+      summary: Update a reviews title, content, rating, or via it's review_id
+      tags:
+        - Review
+      parameters:
+        - name: id
+          in: path
+          description: book_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Info to change, only one is required
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Changed my mind - It's great!
+                content:
+                  type: string
+                  example: I can never truly hate Ms.Frizzle
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 4
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review_id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: Changed my mind - It's great
+                  content:
+                    type: string
+                    example: I can never truly hate Ms.Frizzle
+                  rating:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                  created_at:
+                    type: string
+                    example: '2022-11-05T08:15:30-05:00'
+                  book_id:
+                    type: integer
+                    example: 1
+                  user_id:
+                    type: integer
+                    example: 2
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Content must be at least 10 characters
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Review Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a review with that id
+    delete:
+      summary: Delete a review
+      tags:
+        - Review
+      parameters:
+        - name: id
+          in: path
+          description: review_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/UnauthorizedRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenRequest'
+        '404':
+          description: Review not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Could not find a review with that id
+components:
+  responses:
+    UnauthorizedRequest:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Authentication required to access this resource
+    ForbiddenRequest:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: You do not have permission to access this resource

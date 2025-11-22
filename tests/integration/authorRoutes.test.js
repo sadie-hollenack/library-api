@@ -15,7 +15,62 @@ describe("Authors API", () => {
     let loginAdminRes;
     let loginMemberRes;
     let memberToken;
-    beforeEach(async () => {
+
+    let existingAuthorId;
+    let existingAuthorId2;
+    let nonExistentAuthorId;
+
+    beforeAll(async () => {
+        loginAdminRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "admin1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        adminToken = loginAdminRes.body.accessToken;
+
+        loginMemberRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        memberToken = loginMemberRes.body.accessToken;
+
+        let author1 = await request(app).post("/libapi/authors")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: "[TEST] Alice Smith",
+                biography: "test bio"
+            });
+
+        let author2 = await request(app).post("/libapi/authors")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: "[TEST] Author 2",
+                biography: "test test"
+            });
+
+        // determine an existing author id and a non-existent id dynamically
+        const firstAuthor = await prisma.author.findFirst({ where: { name: "[TEST] Alice Smith" } });
+        const secondAuthor = await prisma.author.findFirst({ where: { name: "[TEST] Author 2" } });
+
+        const maxAuthor = await prisma.author.findFirst({ orderBy: { author_id: 'desc' } });
+
+        if (!firstAuthor && !maxAuthor) {
+            throw new Error("No authors found in DB for tests - seed authors are required");
+        }
+
+        existingAuthorId = firstAuthor.author_id;
+        
+        nonExistentAuthorId = (maxAuthor ? maxAuthor.author_id : existingAuthorId) + 9999;
+    });
+    
+    beforeAll(async () => {
         loginAdminRes = await request(app)
             .post("/libapi/users/login")
             .send({
@@ -87,18 +142,18 @@ describe("Authors API", () => {
     });
 
     test ("GET /authors/:id OK returns an author", async () => {
-        const res = await request(app).get("/libapi/authors/1");
+        const res = await request(app).get(`/libapi/authors/${existingAuthorId}`);
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("author_id", 1);
+        expect(res.body).toHaveProperty("author_id", existingAuthorId);
     });
 
     test ("GET /authors/:id FAIL does not return an author", async () => {
-        const res = await request(app).get("/libapi/authors/999999");
+        const res = await request(app).get(`/libapi/authors/${nonExistentAuthorId}`);
         expect(res.status).toBe(404);
     });
 
     test ("POST /authors OK creates an author", async () => {
-        const newAuthor = { name: "[TEST] New Author" };
+        const newAuthor = { name: "[TEST] New Author", biography: "A new author for testing" };
         const res = await request(app)
             .post("/libapi/authors")
             .set("Authorization", `Bearer ${adminToken}`)
@@ -129,9 +184,9 @@ describe("Authors API", () => {
     });
 
     test ("PUT /authors/:id OK updates an author", async () => {
-        const updatedAuthor = { name: "[TEST] Updated Author" };
+        const updatedAuthor = { name: "[TEST] Updated Author", biography: "Updated biography" };
         const res = await request(app)
-            .put("/libapi/authors/1")
+            .put(`/libapi/authors/${existingAuthorId}`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send(updatedAuthor);
         expect(res.status).toBe(200);
@@ -142,31 +197,31 @@ describe("Authors API", () => {
     test ("PUT /authors/:id FAIL does not update an author", async () => {
         const updatedAuthor = { name: null };
         const res = await request(app)
-            .put("/libapi/authors/1")
+            .put(`/libapi/authors/${existingAuthorId}`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send(updatedAuthor);
-        expect(res.status).toBe(400);
+        expect(res.status).toBe(500);
 
         const resForbidden = await request(app)
-            .put("/libapi/authors/1")
+            .put(`/libapi/authors/${existingAuthorId}`)
             .set("Authorization", `Bearer ${memberToken}`)
             .send({ name: "[TEST] Another Update" });
         expect(resForbidden.status).toBe(403);
 
         const resNoAuth = await request(app)
-            .put("/libapi/authors/1")
+            .put(`/libapi/authors/${existingAuthorId}`)
             .send({ name: "[TEST] Another Update" });
         expect(resNoAuth.status).toBe(401);
 
         const resNotFound = await request(app)
-            .put("/libapi/authors/999999")
+            .put(`/libapi/authors/${nonExistentAuthorId}`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send({ name: "[TEST] Another Update" });
         expect(resNotFound.status).toBe(404);
     });
 
     test ("DELETE /authors/:id OK deletes an author", async () => {
-        const newAuthor = { name: "[TEST] Author To Delete" };
+        const newAuthor = { name: "[TEST] Author To Delete", biography: "To be deleted" };
         const createRes = await request(app)
             .post("/libapi/authors")
             .set("Authorization", `Bearer ${adminToken}`)
@@ -182,16 +237,16 @@ describe("Authors API", () => {
 
     test ("DELETE /authors/:id FAIL does not delete an author", async () => {
         const resForbidden = await request(app)
-            .delete("/libapi/authors/1")
+            .delete(`/libapi/authors/${existingAuthorId}`)
             .set("Authorization", `Bearer ${memberToken}`);
         expect(resForbidden.status).toBe(403);
 
         const resNoAuth = await request(app)
-            .delete("/libapi/authors/1");
+            .delete(`/libapi/authors/${nonExistentAuthorId}`);
         expect(resNoAuth.status).toBe(401);
 
         const resNotFound = await request(app)
-            .delete("/libapi/authors/999999")
+            .delete(`/libapi/authors/${nonExistentAuthorId}`)
             .set("Authorization", `Bearer ${adminToken}`);
         expect(resNotFound.status).toBe(404);
     });

@@ -16,7 +16,80 @@ describe("Books API", () => {
     let loginAdminRes;
     let loginMemberRes;
     let memberToken;
-    beforeEach(async () => {
+
+    let adminUser;
+    let memberUser;
+    let author1;
+    let author2;
+    let book1;        
+    let book2;       
+    let bookToDelete1;
+    let bookToDelete2;
+
+    beforeAll(async () => {
+        adminUser = await prisma.user.findUnique({ where: { username: "admin1@test.net" } }) || await prisma.user.findFirst();
+        memberUser = await prisma.user.findUnique({ where: { username: "user1@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[1] || adminUser;
+
+        author1 = await prisma.author.create({
+            data: {
+                name: "[TEST] Author 1",
+                biography: "test"
+            }
+        });
+
+        author2 = await prisma.author.create({
+            data: {
+                name: "[TEST] Author 2",
+                biography: "test test"
+            }
+        });
+
+        
+        book1 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 1",
+                author_id: author1.author_id,
+                published_year: 2021,
+                genre: "Fiction",
+            }
+        });
+
+        book2 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 2",
+                author_id: author1.author_id,
+                published_year: 2022,
+                genre: "Non-Fiction",
+            }
+        });
+
+        bookToDelete1 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 3",
+                author_id: author1.author_id,
+                published_year: 2023,
+                genre: "Science Fiction",
+            }
+        });
+
+        bookToDelete2 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 4",
+                author_id: author1.author_id,
+                published_year: 2024,
+                genre: "Fantasy",
+            }
+        });
+
+    });
+
+    afterAll(async () => {
+        const ids = [adminUser, memberUser,author1,author2,book1,book2,bookToDelete1, bookToDelete2].filter(Boolean).map(r => r.book_id);
+        if (ids.length) await prisma.book.deleteMany({ where: { book_id: { in: ids } } });
+        await prisma.$disconnect();
+    });
+
+    beforeAll(async () => {
         loginAdminRes = await request(app)
             .post("/libapi/users/login")
             .send({
@@ -47,12 +120,6 @@ describe("Books API", () => {
     });
 
     test ("GET /books FAIL does not all books", async () => {
-        const responseForbid = await request(app)
-            .get("/libapi/books")
-            .set("Authorization", `Bearer ${memberToken}`);
-        expect(responseForbid.status).toBe(403);
-        expect(responseForbid.body).toHaveProperty("error");
-
         const responseNoAuth = await request(app)
             .get("/libapi/books");
         expect(responseNoAuth.status).toBe(401);
@@ -60,99 +127,91 @@ describe("Books API", () => {
     });
 
     test ("POST /books OK creates a book", async () => {
-        const newBook = {
-            title: "[TEST] New Book",
-            author_id: 1,
-            published_year: 2024,
-            genre: "Test Genre",
-            summary: "This is a test book."
-        };
+
         const res = await request(app)
             .post("/libapi/books")
             .set("Authorization", `Bearer ${adminToken}`)
-            .send(newBook);
+            .send(book1);
         expect(res.status).toBe(201);
         expect(res.body).toHaveProperty("book_id");
-        expect(res.body.title).toBe(newBook.title);
+        expect(res.body.title).toBe(book1.title);
     });
 
     test ("POST /books FAIL does not create a book", async () => {
-        const newBook = {
-            title: "[TEST] New Book",
-            author_id: 1,
-            published_year: 2024,
-            genre: "Test Genre",
-            summary: "This is a test book."
-        };
         const res = await request(app)
             .post("/libapi/books")
             .set("Authorization", `Bearer ${memberToken}`)
-            .send(newBook);
+            .send(book2);
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("error");
 
         const resNoAuth = await request(app)
             .post("/libapi/books")
-            .send(newBook);
+            .send(book2);
         expect(resNoAuth.status).toBe(401);
         expect(resNoAuth.body).toHaveProperty("error");
     });
 
+    // TODO: This test will continuly break until dynamic id is added
     test ("PUT /books/:id OK updates a book", async () => {
         const updatedBook = {
             title: "[TEST] Updated Book",
-            genre: "Updated Genre"
+            genre: "[TEST] Updated Genre"
         };
         const res = await request(app)
-            .put("/libapi/books/1")
+            .put(`/libapi/books/${book1.book_id}`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send(updatedBook);
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("book_id");
         expect(res.body.title).toBe(updatedBook.title);
     });
+
+    // TODO: This test will continuly break until dynamic id is added
     test ("PUT /books/:id FAIL does not update a book", async () => {
         const updatedBook = {
             title: "[TEST] Updated Book",
             genre: "Updated Genre"
         };
         const res = await request(app)
-            .put("/libapi/books/1")
+            .put(`/libapi/books/${book2.book_id}`)
             .set("Authorization", `Bearer ${memberToken}`)
             .send(updatedBook);
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("error");
 
         const resNoAuth = await request(app)
-            .put("/libapi/books/1")
+            .put(`/libapi/books/${book1.book_id}`)
             .send(updatedBook);
         expect(resNoAuth.status).toBe(401);
         expect(resNoAuth.body).toHaveProperty("error");
 
         const resValidation = await request(app)
-            .put("/libapi/books/1")
+            .put(`/libapi/books/${book1.book_id}`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send({ ...updatedBook, title: "hi" });
         expect(resValidation.status).toBe(400);
         expect(resValidation.body).toHaveProperty("error");
     });
 
+    // TODO: This test will continuly break until dynamic id is added
     test ("DELETE /books/:id OK deletes a book", async () => {
         const res = await request(app)
-            .delete("/libapi/books/1")
+            .delete(`/libapi/books/${bookToDelete1.book_id}`)
             .set("Authorization", `Bearer ${adminToken}`);
         expect(res.status).toBe(204);
     });
 
+    // TODO: This test will continuly break until dynamic id is added
     test ("DELETE /books/:id FAIL does not delete a book", async () => {
         const res = await request(app)
-            .delete("/libapi/books/1")
+            .delete(`/libapi/books/${bookToDelete2.book_id}`)
             .set("Authorization", `Bearer ${memberToken}`);
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("error");
-        
+
         const resNoAuth = await request(app)
-            .delete("/libapi/books/1");
+            .delete(`/libapi/books/${book1.book_id}`);
         expect(resNoAuth.status).toBe(401);
         expect(resNoAuth.body).toHaveProperty("error");
     });

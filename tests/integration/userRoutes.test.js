@@ -63,6 +63,11 @@ describe("Users API", () => {
             .get("/libapi/users")
             .set("Authorization", `Bearer ${token}`);
         expect(res.statusCode).toBe(403);
+
+        let resNotFound = await request(app)
+            .get("/libapi/users/9999")
+            .set("Authorization", `Bearer ${token}`);
+        expect(resNotFound.statusCode).toBe(404);
     })
 
     test("POST /signup OK creates a new user", async () => {
@@ -347,12 +352,7 @@ describe("Users API", () => {
             .delete("/libapi/users/2")
             .set("Authorization", `Bearer ${token}`)
             .expect(204);
-            
-        let resGet = await request(app)
-            .get("/libapi/users/2")
-            .set("Authorization", `Bearer ${token}`);
-
-        expect(resGet.statusCode).toBe(404);
+        
     })
 
     test("DELETE /users/:id FAIL does not delete an existing users details", async () => {

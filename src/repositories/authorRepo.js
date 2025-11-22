@@ -27,6 +27,7 @@ export async function getAll(filter) {
 }
 
 export async function getById(id) {
+
   const author = await prisma.author.findUnique({
     where: { author_id: id },
     select: {

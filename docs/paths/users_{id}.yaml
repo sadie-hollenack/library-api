@@ -1,0 +1,106 @@
+put:
+  summary: Update a users name and password via their user_id
+  tags:
+    - User
+  parameters:
+    - name: id
+      in: path
+      description: user_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  requestBody:
+    description: Info to change
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: BonJovi
+            password:
+              type: string
+              example: BrandNewPassword
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 3
+              username:
+                type: string
+                example: BonJovi
+              role:
+                type: string
+                example: member
+    '400':
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Password mut be between 8 and 64 characters
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    '404':
+      description: User Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a user with that id
+    '409':
+      description: Username not unique
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Username must unique
+delete:
+  summary: Delete a user
+  tags:
+    - User
+  parameters:
+    - name: id
+      in: path
+      description: user_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    '204':
+      description: OK
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    '404':
+      description: User not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a user with that id

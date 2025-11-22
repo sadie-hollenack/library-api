@@ -1,0 +1,17 @@
+get:
+  summary: List all users
+  tags:
+    - User
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/users.yaml
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml

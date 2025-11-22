@@ -6,7 +6,7 @@ get:
     - name: search
       in: query
       required: false
-      description: Search for a certian author
+      description: Search for a certain author
       schema:
         type: string
     - name: sortBy
@@ -52,11 +52,11 @@ get:
                   type: string
             example:
               - author_id: 1
-                name: George Orwell
-                biography: British writer and journalist
+                name: Joanna Cole
+                biography: Author of childrens books and teaches science  
               - author_id: 2
-                name: William Shakespeare
-                biography: English playwright, poet, and actor
+                name: James Stewart
+                biography: Professor of mathematics and a violinist
     "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
 post:

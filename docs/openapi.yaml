@@ -35,3 +35,7 @@ paths:
     $ref: paths/books.yaml
   /books/{id}: 
     $ref: paths/books_{id}.yaml
+  /reviews:
+    $ref: paths/reviews.yaml
+  /reviews/{id}: 
+    $ref: paths/reviews_{id}.yaml

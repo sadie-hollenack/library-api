@@ -1,18 +1,18 @@
 get:
-  summary: List all books
+  summary: List all reviews
   tags:
-    - Book
+    - Review
   parameters:
     - name: search
       in: query
       required: false
-      description: Search for a certain book
+      description: Search for a certian review
       schema:
         type: string
     - name: sortBy
       in: query
       required: false
-      description: Sort by book_id or title
+      description: Sort by review_id or title
       schema:
         type: string
     - name: sortOrder
@@ -25,7 +25,7 @@ get:
     - name: limit
       in: query
       required: false
-      description: Limit how many authors are returned
+      description: Limit how many reviews are returned
       schema:
         type: integer
     - name: offset
@@ -44,35 +44,45 @@ get:
             items:
               type: object
               properties:
-                book_id:
+                review_id:
                   type: integer
                 title:
                   type: string
-                published_year:
-                  type: integer
-                genre:
+                content:
                   type: string
-                author_id:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                created_at:
+                  type: string
+                book_id:
+                  type: integer
+                user_id:
                   type: integer
             example:
-              - book_id: 1
-                title: The Magic School Bus
-                published_year: 2001
-                genre: Educational
-                author_id: 1
-              - book_id: 2
-                title: Calculus 8th Edition
-                published_year: 2015
-                genre: Math Textbook
-                author_id: 2
+              - review_id: 1
+                title: 'I HATE The Magic School Bus!!'
+                content: 'I never got to go on field trips like that :('
+                rating: 1
+                created_at: '2022-11-05T08:15:30-05:00'
+                book_id: 1
+                user_id: 2
+              - review_id: 2
+                title: 'Wowza, what a read!'
+                content: "I haven't read such an electric title since Intro to Circuits!"
+                rating: 5
+                created_at: '2022-08-10T09:47:33-05:00'
+                book_id: 2
+                user_id: 1
     '401':
       $ref: ../components/responses/UnauthorizedRequest.yaml
 post:
-  summary: Create a book
+  summary: Create a review
   tags:
-    - Book
+    - Review
   requestBody:
-    description: Book info
+    description: Review info
     required: true
     content:
       application/json:
@@ -81,16 +91,18 @@ post:
           properties:
             title:
               type: string
-              example: A Treatise on Chocolate Eclairs
-            published_year:
-              type: integer
-              example: 1828
-            genre:
+              example: Boring!
+            content:
               type: string
-              example: Philosophy
-            author_id:
+              example: I had more fun counting each individual pixel on my Nintendo 3DS
+            rating:
               type: integer
-              example: 3
+              minimum: 1
+              maximum: 5
+              example: 2
+            book_id:
+              type: integer
+              example: 2
   responses:
     '200':
       description: OK
@@ -99,21 +111,29 @@ post:
           schema:
             type: object
             properties:
-              book_id:
+              review_id:
                 type: integer
                 example: 3
               title:
                 type: string
-                example: A Treatise on Chocolate Eclairs
-              published_year:
-                type: integer
-                example: 1828
-              genre:
+                example: Boring!
+              content:
                 type: string
-                example: Philosophy
-              author_id:
+                example: I had more fun counting each individual pixel on my Nintendo 3DS
+              rating:
                 type: integer
-                example: 3
+                minimum: 1
+                maximum: 5
+                example: 2
+              created_at:
+                type: string
+                example: "2022-07-09T15:23:54:0-5:00"
+              book_id:
+                type: integer
+                example: 2
+              user_id:
+                type: integer
+                example: 1
     '400':
       description: Validation failed
       content:
@@ -123,7 +143,7 @@ post:
             properties:
               Error:
                 type: string
-                example: author_id must exist
+                example: book_id must exist
     '401':
       $ref: ../components/responses/UnauthorizedRequest.yaml
     '403':

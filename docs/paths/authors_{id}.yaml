@@ -1,38 +1,38 @@
 get:
-  summary: Get a user by their user_id
+  summary: Get an author by their author_id
   tags:
-    - User
+    - Author
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: author_id
       required: true
       schema:
         type: integer
         example: 3
   responses:
-    '200':
+    "200":
       description: OK
       content:
         application/json:
           schema:
             type: object
             properties:
-              user_id:
+              author_id:
                 type: integer
                 example: 3
-              username:
+              name:
                 type: string
-                example: BonJovi
-              role:
+                example: Mariah Carey
+              biography:
                 type: string
-                example: member
-    '401':
+                example: Shes defrosting...
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User Not Found
+    "404":
+      description: Author Not Found
       content:
         application/json:
           schema:
@@ -40,15 +40,15 @@ get:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
+                example: Could not find an author with that id
 put:
-  summary: Update a users name and password via their user_id
+  summary: Update an authors name and biography via their author_id
   tags:
-    - User
+    - Author
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: author_id
       required: true
       schema:
         type: integer
@@ -61,30 +61,30 @@ put:
         schema:
           type: object
           properties:
-            username:
+            name:
               type: string
-              example: BonJovi
-            password:
+              example: Sabrina Carpenter
+            biography:
               type: string
-              example: BrandNewPassword
+              example: Coffee lover
   responses:
-    '200':
+    "200":
       description: OK
       content:
         application/json:
           schema:
             type: object
             properties:
-              user_id:
+              author_id:
                 type: integer
                 example: 3
-              username:
+              name:
                 type: string
-                example: BonJovi
-              role:
+                example: Sabrina Carpenter
+              biography:
                 type: string
-                example: member
-    '400':
+                example: Coffee lover
+    "400":
       description: Validation failed
       content:
         application/json:
@@ -93,13 +93,13 @@ put:
             properties:
               Error:
                 type: string
-                example: Password mut be between 8 and 64 characters
-    '401':
+                example: Biography must be at least 10 characters
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User Not Found
+    "404":
+      description: Author Not Found
       content:
         application/json:
           schema:
@@ -107,38 +107,28 @@ put:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
-    '409':
-      description: Username not unique
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              Error:
-                type: string
-                example: Username must unique
+                example: Could not find an author with that id
 delete:
-  summary: Delete a user
+  summary: Delete an author
   tags:
-    - User
+    - Author
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: author_id
       required: true
       schema:
         type: integer
         example: 3
   responses:
-    '204':
+    "204":
       description: OK
-    '401':
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User not Found
+    "404":
+      description: Author not Found
       content:
         application/json:
           schema:
@@ -146,4 +136,4 @@ delete:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
+                example: Could not find an author with that id

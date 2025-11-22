@@ -1,0 +1,130 @@
+get:
+  summary: List all books
+  tags:
+    - Book
+  parameters:
+    - name: search
+      in: query
+      required: false
+      description: Search for a certian book
+      schema:
+        type: string
+    - name: sortBy
+      in: query
+      required: false
+      description: Sort by book_id or title
+      schema:
+        type: string
+    - name: sortOrder
+      in: query
+      required: false
+      description: Sort ascending (asc) or descending (dsc)
+      schema:
+        type: string
+        enum: [asc, desc]
+    - name: limit
+      in: query
+      required: false
+      description: Limit how many authors are returned
+      schema:
+        type: integer
+    - name: offset
+      in: query
+      required: false
+      description: Offset the results
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                book_id:
+                  type: integer
+                title:
+                  type: string
+                published_year:
+                  type: integer
+                genre:
+                  type: string
+                author_id:
+                  type: integer
+            example:
+              - book_id: 1
+                title: Animal Farm
+                published_year: 1949
+                genre: Dystopian Fiction
+                author_id: 1
+              - book_id: 2
+                title: Hamlet
+                published_year: 1603
+                genre: Tragedy
+                author_id: 2
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+post:
+  summary: Create a book
+  tags:
+    - Book
+  requestBody:
+    description: Book info
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+              example: A Treatise on Chocolate Eclairs
+            published_year:
+              type: integer
+              example: 1828
+            genre:
+              type: string
+              example: Philosophy
+            author_id:
+              type: integer
+              example: 3
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              book_id:
+                type: integer
+                example: 3
+              title:
+                type: string
+                example: A Treatise on Chocolate Eclairs
+              published_year:
+                type: integer
+                example: 1828
+              genre:
+                type: string
+                example: Philosophy
+              author_id:
+                type: integer
+                example: 3
+    '400':
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: author_id must exist
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml

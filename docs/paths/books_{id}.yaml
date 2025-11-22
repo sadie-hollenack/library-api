@@ -1,38 +1,44 @@
 get:
-  summary: Get a user by their user_id
+  summary: Get a book by it's book_id
   tags:
-    - User
+    - Book
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: book_id
       required: true
       schema:
         type: integer
         example: 3
   responses:
-    '200':
+    "200":
       description: OK
       content:
         application/json:
           schema:
             type: object
             properties:
-              user_id:
+              book_id:
                 type: integer
                 example: 3
-              username:
+              title:
                 type: string
-                example: BonJovi
-              role:
+                example: A Treatise on Chocolate Eclairs
+              published_year:
+                type: integer
+                example: 1828
+              genre:
                 type: string
-                example: member
-    '401':
+                example: Philosophy
+              author_id:
+                type: integer
+                example: 3
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User Not Found
+    "404":
+      description: Book Not Found
       content:
         application/json:
           schema:
@@ -40,15 +46,15 @@ get:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
+                example: Could not find a book with that id
 put:
-  summary: Update a users name and password via their user_id
+  summary: Update a books title, published_year, genre, or author_id via it's book_id
   tags:
-    - User
+    - Book
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: book_id
       required: true
       schema:
         type: integer
@@ -59,32 +65,44 @@ put:
     content:
       application/json:
         schema:
-          type: object
-          properties:
-            username:
-              type: string
-              example: BonJovi
-            password:
-              type: string
-              example: BrandNewPassword
+            type: object
+            properties:
+              title:
+                type: string
+                example: The Starving game
+              published_year:
+                type: integer
+                example: 2018
+              genre:
+                type: string
+                example: Dystopian Fiction
+              author_id:
+                type: integer
+                example: 4
   responses:
-    '200':
+    "200":
       description: OK
       content:
         application/json:
           schema:
             type: object
             properties:
-              user_id:
+              book_id:
                 type: integer
                 example: 3
-              username:
+              title:
                 type: string
-                example: BonJovi
-              role:
+                example: The Starving game
+              published_year:
+                type: integer
+                example: 2018
+              genre:
                 type: string
-                example: member
-    '400':
+                example: Dystopian Fiction
+              author_id:
+                type: integer
+                example: 4
+    "400":
       description: Validation failed
       content:
         application/json:
@@ -93,13 +111,13 @@ put:
             properties:
               Error:
                 type: string
-                example: Password mut be between 8 and 64 characters
-    '401':
+                example: Genre must be at least 3 characters
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User Not Found
+    "404":
+      description: Book Not Found
       content:
         application/json:
           schema:
@@ -107,38 +125,28 @@ put:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
-    '409':
-      description: Username not unique
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              Error:
-                type: string
-                example: Username must unique
+                example: Could not find a book with that id
 delete:
-  summary: Delete a user
+  summary: Delete a book
   tags:
-    - User
+    - Book
   parameters:
     - name: id
       in: path
-      description: user_id
+      description: book_id
       required: true
       schema:
         type: integer
         example: 3
   responses:
-    '204':
+    "204":
       description: OK
-    '401':
+    "401":
       $ref: ../components/responses/UnauthorizedRequest.yaml
-    '403':
+    "403":
       $ref: ../components/responses/ForbiddenRequest.yaml
-    '404':
-      description: User not Found
+    "404":
+      description: Book not Found
       content:
         application/json:
           schema:
@@ -146,4 +154,4 @@ delete:
             properties:
               Error:
                 type: string
-                example: Could not find a user with that id
+                example: Could not find a Book with that id

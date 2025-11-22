@@ -10,7 +10,25 @@ get:
           schema:
             type: array
             items:
-              $ref: ../components/schemas/users.yaml
+              type: object
+              properties:
+                user_id:
+                  readOnly: true
+                  type: integer
+                username:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - member
+            example:
+              - user_id: 1
+                username: Lady Gaga
+                role: admin
+              - user_id: 2
+                username: Ozzy Osbourne
+                role: member
     '401':
       $ref: ../components/responses/UnauthorizedRequest.yaml
     '403':

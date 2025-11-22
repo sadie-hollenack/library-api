@@ -27,3 +27,11 @@ paths:
     $ref: paths/users_{id}.yaml
   /users/{id}/role:
     $ref: paths/users_{id}_role.yaml
+  /authors:
+    $ref: paths/authors.yaml
+  /authors/{id}: 
+    $ref: paths/authors_{id}.yaml
+  /books:
+    $ref: paths/books.yaml
+  /books/{id}: 
+    $ref: paths/books_{id}.yaml

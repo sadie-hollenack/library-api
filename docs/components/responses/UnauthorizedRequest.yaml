@@ -1,0 +1,9 @@
+description: Forbidden
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        Error:
+          type: string
+          example: Authentication required to access this resource

@@ -25,7 +25,79 @@ describe("Reviews API", () => {
     let memberReview;       
     let memberReviewToDelete;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        loginAdminRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "admin1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        adminToken = loginAdminRes.body.accessToken;
+
+        loginMemberRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        memberToken = loginMemberRes.body.accessToken;
+
+        let author1 = await prisma.author.create({
+            data: {
+                name: "[TEST] Author 1",
+                biography: "test"
+            }
+        });
+
+        let author2 = await prisma.author.create({
+            data: {
+                name: "[TEST] Author 2",
+                biography: "test test"
+            }
+        });
+
+        
+        let book1 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 1",
+                author_id: author1.author_id,
+                published_year: 2021,
+                genre: "Fiction",
+            }
+        });
+
+        let book2 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 2",
+                author_id: author1.author_id,
+                published_year: 2022,
+                genre: "Non-Fiction",
+            }
+        });
+
+        let bookToDelete1 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 3",
+                author_id: author1.author_id,
+                published_year: 2023,
+                genre: "Science Fiction",
+            }
+        });
+
+        let bookToDelete2 = await prisma.book.create({
+            data: {
+                title: "[TEST] Book 4",
+                author_id: author1.author_id,
+                published_year: 2024,
+                genre: "Fantasy",
+            }
+        });
+
+
         adminUser = await prisma.user.findUnique({ where: { username: "admin1@test.net" } }) || await prisma.user.findFirst();
         memberUser = await prisma.user.findUnique({ where: { username: "user1@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[1] || adminUser;
         book = await prisma.book.findFirst();
@@ -65,29 +137,6 @@ describe("Reviews API", () => {
         const ids = [adminReview, memberReview, memberReviewToDelete].filter(Boolean).map(r => r.review_id);
         if (ids.length) await prisma.review.deleteMany({ where: { review_id: { in: ids } } });
         await prisma.$disconnect();
-    });
-
-
-    beforeEach(async () => {
-        loginAdminRes = await request(app)
-            .post("/libapi/users/login")
-            .send({
-                username: "admin1@test.net",
-                password: "password"
-            })
-            .expect(200);
-
-        adminToken = loginAdminRes.body.accessToken;
-
-        loginMemberRes = await request(app)
-            .post("/libapi/users/login")
-            .send({
-                username: "user1@test.net",
-                password: "password"
-            })
-            .expect(200);
-
-        memberToken = loginMemberRes.body.accessToken;
     });
 
     test ("GET /reviews OK returns all reviews", async () => {

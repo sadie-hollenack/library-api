@@ -26,7 +26,27 @@ describe("Books API", () => {
     let bookToDelete1;
     let bookToDelete2;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        loginAdminRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "admin1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        adminToken = loginAdminRes.body.accessToken;
+
+        loginMemberRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user1@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        memberToken = loginMemberRes.body.accessToken;
+        
         adminUser = await prisma.user.findUnique({ where: { username: "admin1@test.net" } }) || await prisma.user.findFirst();
         memberUser = await prisma.user.findUnique({ where: { username: "user1@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[1] || adminUser;
 
@@ -81,34 +101,6 @@ describe("Books API", () => {
             }
         });
 
-    });
-
-    afterAll(async () => {
-        const ids = [adminUser, memberUser,author1,author2,book1,book2,bookToDelete1, bookToDelete2].filter(Boolean).map(r => r.book_id);
-        if (ids.length) await prisma.book.deleteMany({ where: { book_id: { in: ids } } });
-        await prisma.$disconnect();
-    });
-
-    beforeAll(async () => {
-        loginAdminRes = await request(app)
-            .post("/libapi/users/login")
-            .send({
-                username: "admin1@test.net",
-                password: "password"
-            })
-            .expect(200);
-
-        adminToken = loginAdminRes.body.accessToken;
-
-        loginMemberRes = await request(app)
-            .post("/libapi/users/login")
-            .send({
-                username: "user1@test.net",
-                password: "password"
-            })
-            .expect(200);
-
-        memberToken = loginMemberRes.body.accessToken;
     });
 
     test ("GET /books OK returns all books", async () => {

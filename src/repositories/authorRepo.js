@@ -27,8 +27,9 @@ export async function getAll(filter) {
 }
 
 export async function getById(id) {
+
   const author = await prisma.author.findUnique({
-    where: { id },
+    where: { author_id: id },
     select: {
       author_id: true,
       name: true,
@@ -48,7 +49,7 @@ export async function create(author) {
 export async function update(id, updates) {
   try {
     const updatedAuthor = await prisma.author.update({
-      where: { id },
+      where: { author_id: id },
       data: updates,
     });
     return updatedAuthor;
@@ -61,7 +62,7 @@ export async function update(id, updates) {
 export async function remove(id) {
   try {
     const deletedAuthor = await prisma.author.delete({
-      where: { id },
+      where: { author_id: id },
     });
     return deletedAuthor;
   } catch (error) {

@@ -20,8 +20,7 @@ export async function getAll(filter) {
       title: true,
       content: true,
       rating: true,
-      created_at: true,
-      author_id: true,
+      createdAt: true,
       user_id: true,  
     },
     orderBy: { [filter.sortBy]: filter.sortOrder },
@@ -34,14 +33,13 @@ export async function getAll(filter) {
 
 export async function getById(id) {
   const review = await prisma.review.findUnique({
-    where: { id },
+    where: { review_id: id },
     select: {
       review_id: true,
       title: true,
       content: true,
       rating: true,
-      created_at: true,
-      author_id: true,
+      createdAt: true,
       user_id: true, 
     },
   });
@@ -58,7 +56,7 @@ export async function create(review) {
 export async function update(id, updates) {
   try {
     const updatedReview = await prisma.review.update({
-      where: { id },
+      where: { review_id: id },
       data: updates,
     });
     return updatedReview;
@@ -71,7 +69,7 @@ export async function update(id, updates) {
 export async function remove(id) {
   try {
     const deletedReview = await prisma.review.delete({
-      where: { id },
+      where: { review_id: id },
     });
     return deletedReview;
   } catch (error) {

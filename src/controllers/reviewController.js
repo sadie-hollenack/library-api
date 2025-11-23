@@ -5,6 +5,7 @@ import {
   updateReview,
   deleteReview,
 } from '../services/reviewService.js';
+import { getBookById } from '../services/bookService.js';
 
 export async function getAllReviewsHandler(req, res) {
   const {
@@ -33,12 +34,14 @@ export async function getReviewByIdHandler(req, res) {
 }
 
 export async function createReviewHandler(req, res) {
+
+  const book = await getBookById(req.body.book_id);
   const data = {
-    title: req.body.title,
+    title: book.title,
     content: req.body.content,
     rating: req.body.rating,
     book_id: req.body.book_id,
-    user_id: req.user.user_id,
+    user_id: req.body.user_id,
   };
   let newReview = await createReview(data);
   res.status(201).json(newReview);

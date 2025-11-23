@@ -11,9 +11,9 @@ export const validateIds = [
 
 // AUTHOR VALIDATORS
 export const validateCreateAuthor = [
-    body('name')
-    .exists({values:"falsy"})
-    .withMessage("Name required")
+  body('name')
+  .exists({ checkFalsy: true })
+  .withMessage("Name required")
     .bail()
     .trim()
     .escape()
@@ -22,26 +22,25 @@ export const validateCreateAuthor = [
     .bail()
     .isLength({ min: 3 })
     .withMessage('name must be at least 3 characters'),
-
-    body('biography')
-    .exists({ values: 'falsy' })
-    .withMessage('biography is required')
+  body('biography')
+  .exists({ checkFalsy: true })
+  .withMessage('biography is required')
     .bail()
     .trim()
     .escape()
     .isString()
     .withMessage('biography must be a string')
     .bail()
-    .isLength({ min: 10 })
-    .withMessage('biography must be at least 10 characters'),
+  .isLength({ min: 1 })
+  .withMessage('biography must be at least 1 character'),
 
   handleValidationErrors,
 ];
 
 export const validateUpdateAuthor = [
   oneOf([
-    body('name').exists({ values:"falsy" }),
-    body('biography').exists({ values:"falsy" }),
+    body('name').exists({ checkFalsy: true }),
+    body('biography').exists({ checkFalsy: true }),
   ], 'At least one field (name, biography) must be provided'),
 
   body('name')
@@ -80,8 +79,8 @@ export const validateCreateBook = [
     .isString()
     .withMessage('title must be a string')
     .bail()
-    .isLength({ min: 1 })
-    .withMessage('title must be at least 1 character'),
+    .isLength({ min: 3 })
+    .withMessage('title must be at least 3 characters'),
 
   body('published_year')
     .optional()
@@ -132,8 +131,8 @@ export const validateUpdateBook = [
     .isString()
     .withMessage('title must be a string')
     .bail()
-    .isLength({ min: 1 })
-    .withMessage('title must be at least 1 character'),
+    .isLength({ min: 3 })
+    .withMessage('title must be at least 3 characters'),
 
   body('published_year')
     .optional()
@@ -167,29 +166,32 @@ export const validateUpdateBook = [
 
 // REVIEW VALIDATORS
 export const validateCreateReview = [
-  body('title')
-    .exists({ checkFalsy: true })
-    .withMessage('title is required')
-    .bail()
-    .trim()
-    .escape()
-    .isString()
-    .withMessage('title must be a string')
-    .bail()
-    .isLength({ min: 1 })
-    .withMessage('title must be at least 1 character'),
+  oneOf([
+    body('content').exists({ checkFalsy: true }),
+    body('comment').exists({ checkFalsy: true }),
+  ], 'Content is required'),
 
   body('content')
-    .exists({ checkFalsy: true })
-    .withMessage('content is required')
+    .optional()
     .bail()
     .trim()
     .escape()
     .isString()
     .withMessage('content must be a string')
     .bail()
-    .isLength({ min: 10 })
-    .withMessage('content must be at least 10 characters'),
+    .isLength({ min: 1 })
+    .withMessage('content must be at least 1 character'),
+
+  body('comment')
+    .optional()
+    .bail()
+    .trim()
+    .escape()
+    .isString()
+    .withMessage('comment must be a string')
+    .bail()
+    .isLength({ min: 1 })
+    .withMessage('comment must be at least 1 character'),
 
   body('rating')
     .exists({ checkFalsy: true })
@@ -205,7 +207,7 @@ export const validateCreateReview = [
     .isInt({ min: 1 })
     .withMessage('book_id must be a positive integer')
     .bail()
-    .custom(async (val) => {
+    .custom(async (val) => { 
       const id = parseInt(val, 10);
       const book = await prisma.book.findUnique({ where: { book_id: id } });
       if (!book) throw new Error('book_id must exist');
@@ -217,10 +219,10 @@ export const validateCreateReview = [
 
 export const validateUpdateReview = [
   oneOf([
-    body('title').exists({ checkFalsy: true }),
     body('content').exists({ checkFalsy: true }),
+    body('comment').exists({ checkFalsy: true }),
     body('rating').exists({ checkFalsy: true }),
-  ], 'At least one field (title, content, rating) must be provided'),
+  ], 'At least one field (content/comment, rating) must be provided'),
 
   body('title')
     .optional()

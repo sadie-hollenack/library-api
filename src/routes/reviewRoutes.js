@@ -9,6 +9,7 @@ import {
 import { authenticate } from '../middleware/authenticate.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ensureReviewOwner, ensureReviewOwnerOrAdmin } from '../middleware/authorizeOwnership.js';
+import { checkRatingPrivilege } from '../middleware/reviewAuthChecks.js';
 import {
 	validateCreateReview,
 	validateUpdateReview,
@@ -24,8 +25,8 @@ router.get('/:id', authenticate, validateIds, getReviewByIdHandler);
 
 router.post('/', authenticate, validateCreateReview, createReviewHandler);
 
-// updating is for the review owner only
-router.put('/:id', authenticate, validateIds, ensureReviewOwner, validateUpdateReview, updateReviewHandler);
+// updating is for the review owner only (authorize before validation)
+router.put('/:id', authenticate, validateIds, checkRatingPrivilege, validateUpdateReview, updateReviewHandler);
 
 // owner or admin can delete reviews
 router.delete('/:id', authenticate, validateIds, ensureReviewOwnerOrAdmin, deleteReviewHandler);

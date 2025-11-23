@@ -168,6 +168,7 @@ describe("Reviews API", () => {
         expect(res.status).toBe(201);
     });
 
+    //why would this fail? both members and admins should be able to create reviews
     test ("POST /reviews FAIL does not create a review", async () => {
         const newReview = {
             book_id: book.book_id,
@@ -248,6 +249,7 @@ describe("Reviews API", () => {
         expect(res.status).toBe(204);
     });
 
+    // this passes since there are not two members trying to delete each other's reviews in the setup, it's just the one member (from what i can tell)
     test ("DELETE /reviews/:id FAIL does not delete a review", async () => {
         const res = await request(app)
             .delete(`/libapi/reviews/${memberReview.review_id}`)

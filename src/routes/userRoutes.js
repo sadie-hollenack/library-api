@@ -29,6 +29,8 @@ router.patch('/:id/role',
     authorizeRoles('admin'),
     validateRoleUpdate,
     updateUserRoleHandler);
+
+//validate signup handler should be included here...
 router.post('/signup', validateSignup, signUpHandler);
 router.post('/login', validateLogin, loginHandler);
 

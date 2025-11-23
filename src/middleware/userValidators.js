@@ -2,12 +2,13 @@ import { param, body, oneOf} from 'express-validator';
 import {handleValidationErrors} from './handleValidationErrors.js';
 
 export const validateSignup = [
-    body('email')
+    body('username')
     .exists({values: 'falsy'})
-    .withMessage('email cannot be blank')
+    .withMessage('username cannot be blank')
     .bail()
-    .isAlphanumeric()
-    .withMessage('email must be alphanumeric'),
+    .isString()
+    .trim()
+    .escape(),
 
     body('password')
     .exists({values: 'falsy'})
@@ -20,7 +21,7 @@ export const validateSignup = [
 ];
 
 export const validateLogin = [
-    body('email')
+    body('username')
     .exists({values: 'falsy'})
     .withMessage('invalid entry'),
 
@@ -34,7 +35,7 @@ export const validateLogin = [
 export const validateUpdateUser = [
     oneOf(
         [
-            body('email')
+            body('username')
             .exists({values: 'falsy'}),
             body('password')
             .exists({values: 'falsy'})
@@ -42,11 +43,13 @@ export const validateUpdateUser = [
         { message: 'validation failed'}
     ),
 
-    body('email')
+    body('username')
     .optional()
-    .isAlphanumeric()
-    .withMessage('email must be alphanumeric')
+    .isString()
+    .trim()
+    .escape(),
 
+    handleValidationErrors,
 ];
 
 export const validateRoleUpdate = [

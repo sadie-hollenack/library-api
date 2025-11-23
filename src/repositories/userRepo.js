@@ -51,7 +51,7 @@ export async function remove(id){
     await prisma.user.delete({
       where: { user_id: Number(id) },
     });
-    return;
+    return true;
   } catch (error) {
     if (error.code === 'P2025') return null;
     throw error;

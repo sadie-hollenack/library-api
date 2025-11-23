@@ -9,3 +9,5 @@ src/generated/prisma
 coverage
 .prettierrc
 .github
+jest-result.json
+backup

@@ -1,16 +1,33 @@
 import express from 'express';
-import { getAllReviewsHandler, createReviewHandler, updateReviewHandler, deleteReviewHandler, getReviewByIdHandler} from '../controllers/reviewController.js';
+import {
+	getAllReviewsHandler,
+	createReviewHandler,
+	updateReviewHandler,
+	deleteReviewHandler,
+	getReviewByIdHandler,
+} from '../controllers/reviewController.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
+import { ensureReviewOwner, ensureReviewOwnerOrAdmin } from '../middleware/authorizeOwnership.js';
+import {
+	validateCreateReview,
+	validateUpdateReview,
+	validateIds,
+} from '../middleware/contentValidators.js';
 
 const router = express.Router();
 
-router.get('/', getAllReviewsHandler);
+// Require authentication for all review endpoints
+router.get('/', authenticate, getAllReviewsHandler);
 
-router.get('/:id', getReviewByIdHandler);
+router.get('/:id', authenticate, validateIds, getReviewByIdHandler);
 
-router.post('/', createReviewHandler);
+router.post('/', authenticate, validateCreateReview, createReviewHandler);
 
-router.put('/:id', updateReviewHandler);
+// updating is for the review owner only
+router.put('/:id', authenticate, validateIds, ensureReviewOwner, validateUpdateReview, updateReviewHandler);
 
-router.delete('/:id', deleteReviewHandler);
+// owner or admin can delete reviews
+router.delete('/:id', authenticate, validateIds, ensureReviewOwnerOrAdmin, deleteReviewHandler);
 
 export default router;

@@ -18,6 +18,10 @@ app.use('/libapi/authors', authorRoutes);
 app.use('/libapi/books', bookRoutes);
 app.use('/libapi/reviews', reviewRoutes);
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;

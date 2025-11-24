@@ -17,8 +17,8 @@ post:
               type: string
               example: didyouknowtameimpalaisoneguy
   responses:
-    '200':
-      description: OK
+    '201':
+      description: CREATED
       content:
         application/json:
           schema:

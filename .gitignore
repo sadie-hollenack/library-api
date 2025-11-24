@@ -1,4 +1,14 @@
 node_modules
 .env
 src/generated/prisma
+package-lock.json
+coveragenode_modules
+.env
+src/generated/prisma
 .vscode
+coverage
+.prettierrc
+.github
+jest-result.json
+backup
+/generated/prisma

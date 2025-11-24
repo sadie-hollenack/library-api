@@ -1,0 +1,70 @@
+patch:
+  summary: Update a users role
+  tags:
+    - User
+  parameters:
+    - name: id
+      in: path
+      description: user_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  requestBody:
+    description: Role to update
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            role:
+              type: string
+              enum:
+                - member
+                - admin
+              example: admin
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 3
+              username:
+                type: string
+                example: BonJovi
+              role:
+                type: string
+                enum:
+                  - memeber
+                  - admin
+                example: admin
+    '400':
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Role must be memeber or admin
+    '401':
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    '403':
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    '404':
+      description: User not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a user with that id

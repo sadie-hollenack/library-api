@@ -1,0 +1,157 @@
+get:
+  summary: Get a book by it's book_id
+  tags:
+    - Book
+  parameters:
+    - name: id
+      in: path
+      description: book_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              book_id:
+                type: integer
+                example: 3
+              title:
+                type: string
+                example: A Treatise on Chocolate Eclairs
+              published_year:
+                type: integer
+                example: 1828
+              genre:
+                type: string
+                example: Philosophy
+              author_id:
+                type: integer
+                example: 3
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Book Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a book with that id
+put:
+  summary: Update a books title, published_year, genre, or author_id via it's book_id
+  tags:
+    - Book
+  parameters:
+    - name: id
+      in: path
+      description: book_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  requestBody:
+    description: Info to change, only one is required
+    required: true
+    content:
+      application/json:
+        schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: The Starving game
+              published_year:
+                type: integer
+                example: 2018
+              genre:
+                type: string
+                example: Dystopian Fiction
+              author_id:
+                type: integer
+                example: 4
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              book_id:
+                type: integer
+                example: 3
+              title:
+                type: string
+                example: The Starving game
+              published_year:
+                type: integer
+                example: 2018
+              genre:
+                type: string
+                example: Dystopian Fiction
+              author_id:
+                type: integer
+                example: 4
+    "400":
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Genre must be at least 3 characters
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Book Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a book with that id
+delete:
+  summary: Delete a book
+  tags:
+    - Book
+  parameters:
+    - name: id
+      in: path
+      description: book_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "204":
+      description: OK
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Book not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a Book with that id

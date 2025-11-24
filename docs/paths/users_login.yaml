@@ -1,0 +1,38 @@
+post:
+  summary: User login
+  tags:
+    - User
+  requestBody:
+    description: Info to login
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: TameImpala
+            password:
+              type: string
+              example: didyouknowtameimpalaisoneguy
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accessToken:
+                type: string
+    '401':
+      description: Validation failed, login failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Invalid Credentials

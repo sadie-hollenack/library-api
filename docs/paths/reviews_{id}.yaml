@@ -1,0 +1,172 @@
+get:
+  summary: Get a review by it's review_id
+  tags:
+    - Review
+  parameters:
+    - name: id
+      in: path
+      description: review_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              review_id:
+                type: integer
+                example: 3
+              title:
+                type: string
+                example: Boring!
+              content:
+                type: string
+                example: I had more fun counting each individual pixel on my Nintendo 3DS
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+                example: 2
+              created_at:
+                type: string
+                example: "2022-07-09T15:23:54:0-5:00"
+              book_id:
+                type: integer
+                example: 2
+              user_id:
+                type: integer
+                example: 1
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Review Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a review with that id
+put:
+  summary: Update a reviews title, content, rating, or via it's review_id
+  tags:
+    - Review
+  parameters:
+    - name: id
+      in: path
+      description: book_id
+      required: true
+      schema:
+        type: integer
+        example: 1
+  requestBody:
+    description: Info to change, only one is required
+    required: true
+    content:
+      application/json:
+        schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Changed my mind - It's great!"
+              content:
+                type: string
+                example: I can never truly hate Ms.Frizzle
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+                example: 4
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              review_id:
+                type: integer
+                example: 1
+              title:
+                type: string
+                example: "Changed my mind - It's great"
+              content:
+                type: string
+                example: I can never truly hate Ms.Frizzle
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+                example: 4
+              created_at:
+                type: string
+                example: '2022-11-05T08:15:30-05:00'
+              book_id:
+                type: integer
+                example: 1
+              user_id:
+                type: integer
+                example: 2
+    "400":
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Content must be at least 10 characters
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Review Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a review with that id
+delete:
+  summary: Delete a review
+  tags:
+    - Review
+  parameters:
+    - name: id
+      in: path
+      description: review_id
+      required: true
+      schema:
+        type: integer
+        example: 3
+  responses:
+    "204":
+      description: OK
+    "401":
+      $ref: ../components/responses/UnauthorizedRequest.yaml
+    "403":
+      $ref: ../components/responses/ForbiddenRequest.yaml
+    "404":
+      description: Review not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+                example: Could not find a review with that id

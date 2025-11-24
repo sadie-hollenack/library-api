@@ -7,6 +7,8 @@ servers:
     description: Local dev servers
   - url: https://library-api-88rw.onrender.com
     description: Production server on render
+security:
+  - bearerAuth: []
 tags:
   - name: User
     description: User-related endpoints
@@ -17,7 +19,7 @@ tags:
   - name: Review
     description: Review-related endpoints
 paths:
-  /users:
+  /libapi/users:
     get:
       summary: List all users
       tags:
@@ -53,7 +55,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedRequest'
         '403':
           $ref: '#/components/responses/ForbiddenRequest'
-  /users/signup:
+  /libapi/users/signup:
     post:
       summary: User sign up
       tags:
@@ -113,7 +115,7 @@ paths:
                   Error:
                     type: string
                     example: Username must unique
-  /users/login:
+  /libapi/users/login:
     post:
       summary: User login
       tags:
@@ -152,7 +154,7 @@ paths:
                   Error:
                     type: string
                     example: Invalid Credentials
-  /users/{id}:
+  /libapi/users/{id}:
     get:
       summary: Get a user by their user_id
       tags:
@@ -302,7 +304,7 @@ paths:
                   Error:
                     type: string
                     example: Could not find a user with that id
-  /users/{id}/role:
+  /libapi/users/{id}/role:
     patch:
       summary: Update a users role
       tags:
@@ -373,7 +375,7 @@ paths:
                   Error:
                     type: string
                     example: Could not find a user with that id
-  /authors:
+  /libapi/authors:
     get:
       summary: List all authors
       tags:
@@ -486,7 +488,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedRequest'
         '403':
           $ref: '#/components/responses/ForbiddenRequest'
-  /authors/{id}:
+  /libapi/authors/{id}:
     get:
       summary: Get an author by their author_id
       tags:
@@ -626,7 +628,7 @@ paths:
                   Error:
                     type: string
                     example: Could not find an author with that id
-  /books:
+  /libapi/books:
     get:
       summary: List all books
       tags:
@@ -759,7 +761,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedRequest'
         '403':
           $ref: '#/components/responses/ForbiddenRequest'
-  /books/{id}:
+  /libapi/books/{id}:
     get:
       summary: Get a book by it's book_id
       tags:
@@ -917,7 +919,7 @@ paths:
                   Error:
                     type: string
                     example: Could not find a Book with that id
-  /reviews:
+  /libapi/reviews:
     get:
       summary: List all reviews
       tags:
@@ -1070,7 +1072,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedRequest'
         '403':
           $ref: '#/components/responses/ForbiddenRequest'
-  /reviews/{id}:
+  /libapi/reviews/{id}:
     get:
       summary: Get a review by it's review_id
       tags:
@@ -1244,6 +1246,11 @@ paths:
                     type: string
                     example: Could not find a review with that id
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     UnauthorizedRequest:
       description: Unauthorized

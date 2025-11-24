@@ -1,4 +1,12 @@
 openapi: 3.1.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
 info:
   title: Library API
   version: 1.0.0
@@ -17,25 +25,25 @@ tags:
   - name: Review
     description: Review-related endpoints
 paths:
-  /users:
+  /libapi/users:
     $ref: paths/users.yaml
-  /users/signup:
+  /libapi/users/signup:
     $ref: paths/users_signup.yaml
-  /users/login:
+  /libapi/users/login:
     $ref: paths/users_login.yaml
-  /users/{id}:
+  /libapi/users/{id}:
     $ref: paths/users_{id}.yaml
-  /users/{id}/role:
+  /libapi/users/{id}/role:
     $ref: paths/users_{id}_role.yaml
-  /authors:
+  /libapi/authors:
     $ref: paths/authors.yaml
-  /authors/{id}: 
+  /libapi/authors/{id}: 
     $ref: paths/authors_{id}.yaml
-  /books:
+  /libapi/books:
     $ref: paths/books.yaml
-  /books/{id}: 
+  /libapi/books/{id}: 
     $ref: paths/books_{id}.yaml
-  /reviews:
+  /libapi/reviews:
     $ref: paths/reviews.yaml
-  /reviews/{id}: 
+  /libapi/reviews/{id}: 
     $ref: paths/reviews_{id}.yaml

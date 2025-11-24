@@ -13,7 +13,14 @@ export async function findUserByEmail(username){
 
 export async function findUser(id){
     console.log(id);
-    return await prisma.user.findUnique({where: {user_id: Number(id)}, omit: {password: true}});
+    let user = await prisma.user.findUnique({where: {user_id: Number(id)}, omit: {password: true}});
+    if(user !== null) {
+      return user
+    } else {
+      const error = new Error('Cannot find a user with id of ' + id)
+      error.status = 404
+      throw error
+    }
 }
 
 export async function findAllUsers(){
@@ -34,13 +41,18 @@ export async function update(id, data){
     console.log(updatedMe);
     return updatedMe;
   } catch (error) {
-    console.log("We hit an error")
-    if (error.code === 'P2025') return null;
+    if (error.code === 'P2025'){
+      const error = new Error('Cannot find a user with the id ' + id)
+      error.status = 404
+      throw error
+    } 
     if(error.code === 'P2002'){
-         const error = new Error('Email has already been used');
-                error.status = 409;
-                throw error;
+      console.log(2002)
+      const error = new Error('Email has already been used');
+      error.status = 409;
+      throw error;
     }
+    console.log("We hit an error" + error)
     throw error;
     
   }
@@ -53,7 +65,11 @@ export async function remove(id){
     });
     return;
   } catch (error) {
-    if (error.code === 'P2025') return null;
+    if (error.code === 'P2025') {
+      const error = new Error('Cannot find a user with the id ' + id)
+      error.status = 404
+      throw error
+    };
     throw error;
   }
 }
@@ -68,7 +84,11 @@ export async function updateRole(id, role){
     });
     return updatedUser;
   } catch (error) {
-    if (error.code === 'P2025') return null;
+    if (error.code === 'P2025') {
+      const error = new Error('Cannot find a user with the id ' + id)
+      error.status = 404
+      throw error
+    };
     throw error;
   }
 }

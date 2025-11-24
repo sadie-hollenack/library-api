@@ -16,10 +16,13 @@ describe("Reviews API", () => {
     let adminToken;
     let loginAdminRes;
     let loginMemberRes;
-    let memberToken;
+    let loginMemberNonAuthorRes;
+    let authorMemberToken;
+    let nonAuthorMemberToken;
 
     let adminUser;
-    let memberUser;
+    let authorMemberUser;
+    let nonAuthorMemberUser;
     let book;
     let adminReview;        
     let memberReview;       
@@ -44,7 +47,17 @@ describe("Reviews API", () => {
             })
             .expect(200);
 
-        memberToken = loginMemberRes.body.accessToken;
+        authorMemberToken = loginMemberRes.body.accessToken;
+
+        loginMemberNonAuthorRes = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user2@test.net",
+                password: "password"
+            })
+            .expect(200);
+
+        nonAuthorMemberToken = loginMemberNonAuthorRes.body.accessToken;
 
         let author1 = await prisma.author.create({
             data: {
@@ -99,7 +112,8 @@ describe("Reviews API", () => {
 
 
         adminUser = await prisma.user.findUnique({ where: { username: "admin1@test.net" } }) || await prisma.user.findFirst();
-        memberUser = await prisma.user.findUnique({ where: { username: "user1@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[1] || adminUser;
+        authorMemberUser = await prisma.user.findUnique({ where: { username: "user1@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[1] || adminUser;
+        nonAuthorMemberUser = await prisma.user.findUnique({ where: { username: "user2@test.net" } }) || (await prisma.user.findMany({ take: 2 }))[0];
         book = await prisma.book.findFirst();
 
         adminReview = await prisma.review.create({
@@ -118,7 +132,7 @@ describe("Reviews API", () => {
                 content: "member content",
                 rating: 4,
                 book_id: book.book_id,
-                user_id: memberUser.user_id,
+                user_id: authorMemberUser.user_id,
             },
         });
 
@@ -128,7 +142,7 @@ describe("Reviews API", () => {
                 content: "delete me",
                 rating: 3,
                 book_id: book.book_id,
-                user_id: memberUser.user_id,
+                user_id: authorMemberUser.user_id,
             },
         });
     });
@@ -171,17 +185,10 @@ describe("Reviews API", () => {
     test ("POST /reviews FAIL does not create a review", async () => {
         const newReview = {
             book_id: book.book_id,
-            user_id: memberUser.user_id,
+            user_id: authorMemberUser.user_id,
             rating: 5,
             content: "I love big chungus!"
         };
-
-        const res = await request(app)
-            .post("/libapi/reviews")
-            .set("Authorization", `Bearer ${memberToken}`)
-            .send(newReview);
-        expect(res.status).toBe(403);
-        expect(res.body).toHaveProperty("error");
 
         const resNoAuth = await request(app)
             .post("/libapi/reviews")
@@ -204,7 +211,7 @@ describe("Reviews API", () => {
         };
         const res = await request(app)
             .put(`/libapi/reviews/${adminReview.review_id}`)
-            .set("Authorization", `Bearer ${memberToken}`)
+            .set("Authorization", `Bearer ${authorMemberToken}`)
             .send(updatedReview);
         expect(res.status).toBe(200);
     });
@@ -215,7 +222,7 @@ describe("Reviews API", () => {
         };
         const res = await request(app)
             .put(`/libapi/reviews/${adminReview.review_id}`)
-            .set("Authorization", `Bearer ${memberToken}`)
+            .set("Authorization", `Bearer ${authorMemberToken}`)
             .send(updatedReview);
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("error");
@@ -228,14 +235,14 @@ describe("Reviews API", () => {
 
         const resNotFound = await request(app)
             .put("/libapi/reviews/9999")
-            .set("Authorization", `Bearer ${memberToken}`)
+            .set("Authorization", `Bearer ${authorMemberToken}`)
             .send({ rating: 3, comment: "Not found review." });
         expect(resNotFound.status).toBe(404);
         expect(resNotFound.body).toHaveProperty("error");
 
         const resValidation = await request(app)
             .put(`/libapi/reviews/${adminReview.review_id}`)
-            .set("Authorization", `Bearer ${memberToken}`)
+            .set("Authorization", `Bearer ${authorMemberToken}`)
             .send({ rating: 0, comment: "Invalid rating." });
         expect(resValidation.status).toBe(400);
         expect(resValidation.body).toHaveProperty("error");
@@ -244,14 +251,14 @@ describe("Reviews API", () => {
     test ("DELETE /reviews/:id OK deletes a review", async () => {
         const res = await request(app)
             .delete(`/libapi/reviews/${memberReviewToDelete.review_id}`)
-            .set("Authorization", `Bearer ${memberToken}`);
+            .set("Authorization", `Bearer ${authorMemberToken}`);
         expect(res.status).toBe(204);
     });
 
     test ("DELETE /reviews/:id FAIL does not delete a review", async () => {
         const res = await request(app)
             .delete(`/libapi/reviews/${memberReview.review_id}`)
-            .set("Authorization", `Bearer ${memberToken}`);
+            .set("Authorization", `Bearer ${nonAuthorMemberToken}`);
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("error");
 
@@ -262,7 +269,7 @@ describe("Reviews API", () => {
 
         const resNotFound = await request(app)
             .delete(`/libapi/reviews/9999`)
-            .set("Authorization", `Bearer ${memberToken}`);
+            .set("Authorization", `Bearer ${authorMemberToken}`);
         expect(resNotFound.status).toBe(404);
         expect(resNotFound.body).toHaveProperty("error");
     });

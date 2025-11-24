@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import YAML from 'yamljs'
+import swaggerUi from 'swagger-ui-express'
 
 import authorRoutes from './routes/authorRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -21,6 +23,9 @@ app.use('/libapi/reviews', reviewRoutes);
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+const docSpecs = YAML.load('docs/public/bundled.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(docSpecs));
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');

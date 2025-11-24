@@ -11,3 +11,4 @@ coverage
 .github
 jest-result.json
 backup
+/generated/prisma

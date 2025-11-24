@@ -285,8 +285,10 @@ describe("Users API", () => {
 
         let token = loginRes.body.accessToken;
 
+        let userId = await prisma.user.findUnique({ where: { username: "admin1@test.net" } });
+
         let res = await request(app)
-            .patch("/libapi/users/116/role")
+            .patch(`/libapi/users/${userId.user_id}/role`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 role: "admin",

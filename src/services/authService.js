@@ -40,6 +40,7 @@ export async function logIn(email, password){
     }
 
     console.log(user)
-    const accessToken = jwt.sign({id: user.id, username: user.username, role: user.role }, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
+    const userId = user.user_id ?? user.id;
+    const accessToken = jwt.sign({id: userId, username: user.username, role: user.role }, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
     return accessToken;
 }

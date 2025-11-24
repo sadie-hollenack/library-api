@@ -7,3 +7,7 @@ coveragenode_modules
 src/generated/prisma
 .vscode
 coverage
+.prettierrc
+.github
+jest-result.json
+backup

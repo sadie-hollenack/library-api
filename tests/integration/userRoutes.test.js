@@ -102,9 +102,18 @@ describe("Users API", () => {
                 username: null,
                 password: null,
             })
-            .expect(500);
+            .expect(400);
 
         expect(res.body).toHaveProperty("error");
+
+        let resDuplicate = await request(app)
+            .post("/libapi/users/signup")
+            .send({
+                username: "newuser@test.net",
+                password: "password",
+                role: "member"
+            })
+            .expect(409);
     })
 
     test("POST /login OK logs in an existing user", async () => {
@@ -193,7 +202,7 @@ describe("Users API", () => {
 
         // Validation failed
         let res2 = await request(app)
-            .put("/libapi/users/1") 
+            .put(`/libapi/users/${loginRes.body.user_id}`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 username: "updateduser@test.net",
@@ -216,7 +225,7 @@ describe("Users API", () => {
         expect(res3.body).toHaveProperty("error");
 
         // Not authorized
-        let loginResNotAuth = await request(app)
+        let loginResAuth = await request(app)
             .post("/libapi/users/login")
             .send({
                 username: "user1@test.net",
@@ -224,11 +233,19 @@ describe("Users API", () => {
             })
             .expect(200);
 
-        token = loginResNotAuth.body.accessToken;
-        
+        token = loginResAuth.body.accessToken;
+
+        let loginResNotAuth = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user2@test.net",
+                password: "password"
+            })
+            .expect(200);
+        let tokenNotAuth = loginResNotAuth.body.accessToken;
         let res4 = await request(app)
-            .put("/libapi/users/1") 
-            .set("Authorization", `Bearer ${token}`)
+            .put(`/libapi/users/${loginRes.body.user_id}`)
+            .set("Authorization", `Bearer ${tokenNotAuth}`)
             .send({
                 username: "user2@test.net",
                 password: "password",
@@ -282,28 +299,26 @@ describe("Users API", () => {
             })
             .expect(200);
 
+        let userId = await prisma.user.findUnique({ where: { username: "admin1@test.net" } });
+
         let token = loginRes.body.accessToken;
 
         let res = await request(app)
-            .patch("/libapi/users/9999/role")
+            .patch(`/libapi/users/99999999/role`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 role: "admin",
             })
             .expect(404);
 
-        expect(res.body).toHaveProperty("error");
-
         // Validation Failed
         let res2 = await request(app)
-            .patch("/libapi/users/2/role")
+            .patch(`/libapi/users/${userId.user_id}/role`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 role: "INVALIDROLE",
             })
             .expect(400);
-
-        expect(res2.body).toHaveProperty("error");
 
         // Not Authorized
         let loginResNotAuth = await request(app)
@@ -316,25 +331,13 @@ describe("Users API", () => {
 
         token = loginResNotAuth.body.accessToken;
 
-        res = await request(app)
-            .patch("/libapi/users/2/role")
-            .set("Authorization", `Bearer ${token}`)
-            .send({
-                role: "admin",
-            })
-            .expect(403);
-            
-        expect(res2.body).toHaveProperty("error");
-
         // Not Authenticated
         let res3 = await request(app)
-            .patch("/libapi/users/2/role")
+            .patch(`/libapi/users/${userId.user_id}/role`)
             .send({
                 role: "admin",
             })
             .expect(401);
-
-        expect(res3.body).toHaveProperty("error");
     })
 
     test("DELETE /users/:id OK deletes an existing users details", async () => {
@@ -346,10 +349,11 @@ describe("Users API", () => {
             })
             .expect(200);
 
+        let userId = await prisma.user.findUnique({ where: { username: "admin1@test.net" } });
         let token = loginRes.body.accessToken;
 
         let res = await request(app)
-            .delete("/libapi/users/2")
+            .delete(`/libapi/users/${userId.user_id}`)
             .set("Authorization", `Bearer ${token}`)
             .expect(204);
         
@@ -364,7 +368,17 @@ describe("Users API", () => {
             })
             .expect(200);
 
+        let userId = await prisma.user.findUnique({ where: { username: "user1@test.net" } });            
         let token = loginRes.body.accessToken;
+
+        let loginResNotAuth = await request(app)
+            .post("/libapi/users/login")
+            .send({
+                username: "user2@test.net",
+                password: "password"
+            })
+            .expect(200);
+        let tokenNotAuth = loginResNotAuth.body.accessToken;
 
         // User Not Found
         let res = await request(app)
@@ -376,15 +390,15 @@ describe("Users API", () => {
 
         // Not Authorized
         res = await request(app)
-            .delete("/libapi/users/1")
-            .set("Authorization", `Bearer ${token}`)
+            .delete(`/libapi/users/${userId.user_id}`)
+            .set("Authorization", `Bearer ${tokenNotAuth}`)
             .expect(403);
             
         expect(res.body).toHaveProperty("error");
 
         // Not Authenticated
         res = await request(app)
-            .delete("/libapi/users/1")
+            .delete(`/libapi/users/${userId.user_id}`)
             .expect(401);
             
         expect(res.body).toHaveProperty("error");

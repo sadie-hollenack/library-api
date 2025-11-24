@@ -154,15 +154,17 @@ describe("Users API", () => {
         let loginRes = await request(app)
             .post("/libapi/users/login")
             .send({
-                username: "admin1@test.net",
+                username: "admin2@test.net",
                 password: "password"
             })
             .expect(200);
 
         let token = loginRes.body.accessToken;
-        
+
+        let userId = await prisma.user.findUnique({ where: { username: "admin2@test.net" } }) || await prisma.user.findFirst();
+
         let res = await request(app)
-            .put("/libapi/users/1")
+            .put(`/libapi/users/${userId.user_id}`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 username: "updateduser@test.net",
@@ -171,7 +173,7 @@ describe("Users API", () => {
             .expect(200);
 
         let resGet = await request(app)
-            .get("/libapi/users/1")
+            .get(`/libapi/users/${userId.user_id}`)
             .set("Authorization", `Bearer ${token}`)
 
         expect(resGet.statusCode).toBe(200);
@@ -185,6 +187,9 @@ describe("Users API", () => {
                 password: "password"
             })
             .expect(200);
+
+        let userId = await prisma.user.findUnique({ where: { username: "admin1@test.net" } }) || await prisma.user.findFirst();
+
 
         let token = loginRes.body.accessToken;
 
@@ -202,11 +207,11 @@ describe("Users API", () => {
 
         // Validation failed
         let res2 = await request(app)
-            .put(`/libapi/users/${loginRes.body.user_id}`)
+            .put(`/libapi/users/${userId.user_id}`)
             .set("Authorization", `Bearer ${token}`)
             .send({
-                username: "updateduser@test.net",
-                password: "test", // password needs to be 8+ 
+                username: "notcurrentuser@test.net",
+                password: "tes", // password needs to be 8+ 
             })
             .expect(400);
 
@@ -214,7 +219,7 @@ describe("Users API", () => {
 
         // username not unique
         let res3 = await request(app)
-            .put("/libapi/users/1") 
+            .put(`/libapi/users/${userId.user_id}`)
             .set("Authorization", `Bearer ${token}`)
             .send({
                 username: "user2@test.net",
@@ -242,10 +247,12 @@ describe("Users API", () => {
                 password: "password"
             })
             .expect(200);
+        let userIdNoAuth = await prisma.user.findUnique({ where: { username: "user2@test.net" } }) || await prisma.user.findFirst();
+
         let tokenNotAuth = loginResNotAuth.body.accessToken;
         let res4 = await request(app)
-            .put(`/libapi/users/${loginRes.body.user_id}`)
-            .set("Authorization", `Bearer ${tokenNotAuth}`)
+            .put(`/libapi/users/${userIdNoAuth.user_id}`)
+            .set("Authorization", `Bearer ${token}`)
             .send({
                 username: "user2@test.net",
                 password: "password",
@@ -256,7 +263,7 @@ describe("Users API", () => {
 
         // Not authenticated
         let res5 = await request(app)
-            .put("/libapi/users/1") 
+            .put(`/libapi/users/${userId.user_id}`)
             .send({
                 username: "user2@test.net",
                 password: "password",

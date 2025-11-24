@@ -79,6 +79,7 @@ describe("Authors API", () => {
     test ("GET /authors OK with query parameters - sortBy and sortOrder", async () => {
         const response = await request(app)
             .get("/libapi/authors")
+            .set("Authorization", `Bearer ${adminToken}`)
             .query({ sortBy: "name", sortOrder: "asc", limit: 10, offset: 0 });
         expect(response.status).toBe(200);
         const returnedNames = response.body.map(a => a.name);
@@ -90,12 +91,16 @@ describe("Authors API", () => {
     });
 
     test ("GET /authors OK with query parameters - limit & offset (pagination)", async () => {
-        const full = await request(app).get("/libapi/authors").query({ sortBy: "name", sortOrder: "asc" });
+        const full = await request(app)
+        .get("/libapi/authors")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sortBy: "name", sortOrder: "asc" });
         expect(full.status).toBe(200);
         const fullNames = full.body.map(a => a.name);
 
         const paged = await request(app)
             .get("/libapi/authors")
+            .set("Authorization", `Bearer ${adminToken}`)
             .query({ sortBy: "name", sortOrder: "asc", limit: 1, offset: 1 });
         expect(paged.status).toBe(200);
         expect(Array.isArray(paged.body)).toBe(true);
@@ -104,13 +109,17 @@ describe("Authors API", () => {
     });
 
     test ("GET /authors/:id OK returns an author", async () => {
-        const res = await request(app).get(`/libapi/authors/${existingAuthorId}`);
+        const res = await request(app)
+        .get(`/libapi/authors/${existingAuthorId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("author_id", existingAuthorId);
     });
 
     test ("GET /authors/:id FAIL does not return an author", async () => {
-        const res = await request(app).get(`/libapi/authors/${nonExistentAuthorId}`);
+        const res = await request(app)
+        .get(`/libapi/authors/${nonExistentAuthorId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
         expect(res.status).toBe(404);
     });
 

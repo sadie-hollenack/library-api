@@ -30,6 +30,14 @@ beforeAll(async () => {
             role: "admin"
         }
     });
+
+    await prisma.user.create({
+        data: {
+            username: "admin2@test.net",
+            password: hashedPassword,                
+            role: "admin"
+        }
+    });
 })
 
 afterEach(async () => {

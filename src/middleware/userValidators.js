@@ -39,6 +39,7 @@ export const validateUpdateUser = [
             .exists({values: 'falsy'}),
             body('password')
             .exists({values: 'falsy'})
+            
         ],
         { message: 'validation failed'}
     ),
@@ -48,6 +49,12 @@ export const validateUpdateUser = [
     .isString()
     .trim()
     .escape(),
+
+    body('password')
+    .optional()
+    .isString()
+    .isLength({min:4, max: 16})
+    .withMessage('password must be between 4-16 characters long'),
 
     handleValidationErrors,
 ];
